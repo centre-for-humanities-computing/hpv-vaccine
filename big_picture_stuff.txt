@@ -1,0 +1,36 @@
+Decisions)
+
+    seeded lda hyperparameter tuning
+        use those from gensim?
+    
+    prepare seeds
+        hyperparameters for Word2Vec?
+        or am I using PmiSvd?
+
+
+Scripts)
+
+    from JSON -> tabular
+
+    grid search in seeded LDA
+        iterating through alpha & beta
+        coherence score(!)
+
+    topic usage (detect topic in doc)
+
+    keep track of post ID somefucking how.
+        merge with original dataset after preprocessing?
+        or keep adding ID while preprocessing?
+
+
+Git repo)
+    
+    gitignore: models, data, except for test_data.txt
+
+
+Documentation)
+    
+    First thing: run everything in master.ipynb
+    
+    At some point: run everything from terminal,
+    where you can mess with the parameters in the script itself?
