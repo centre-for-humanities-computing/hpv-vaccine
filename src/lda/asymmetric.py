@@ -10,8 +10,9 @@ from six.moves import cPickle as pickle
 from gensim import models, corpora
 from gensim.models.coherencemodel import CoherenceModel
 from gensim.models.ldamulticore import LdaModel
-
 import pyLDAvis.gensim
+
+from src.utility.general import make_folders
 
 
 def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
@@ -40,14 +41,8 @@ def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
         range of integers to use as the number of topics
         in interations of the topic model.
 
-    report_folder : str
-        path to folder, where report objects going to be dumped
-
-    model_folder : str
-        path to folder to save models
-
-    plot_folder : str
-        path to folder to save plots
+    out_dir : str
+        path to a directory, where results will be saved (in a child directory).
 
 
     Exports
@@ -62,26 +57,51 @@ def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
     plots/*
         pyLDAvis visualizations of the model
     '''
+    # check how legit out_dir is
+    make_folders(out_dir)
+
     # if a single model is to be fitted,
     # make sure it can be "iterated"
     if isinstance(n_topics_range, int):
         n_topics_range = [n_topics_range]
 
+    # input texts to gensim format
+    dictionary = corpora.Dictionary(texts)
+    bows = [dictionary.doc2bow(tl) for tl in texts]
+
     # iterate
     report_list = []
     for n_top in chain(n_topics_range):
 
-#         if verbose:
-#             print("{} topics".format(n_top))
+        if verbose:
+            print("{} topics".format(n_top))
 
         start_time = time()
 
         # paths for saving
-        report_path = os.path.join(report_folder + str(n_top) + 'T.pickle')
-        model_path = os.path.join(model_folder + str(n_top) + 'T.model')
-        pyldavis_path = os.path.join(plot_folder + str(n_top) + 'T_pyldavis.html')
+        ## it's not very elegant defining the paths here
+        ## after there already is funciton make_folders
+        filename = str(n_top) + "T_" + str(i)
+        report_path = os.path.join(
+            out_dir,
+            'report_lines',
+            filename + '.pickle'
+        )
+
+        model_path = os.path.join(
+            out_dir,
+            'models',
+            filename + '.model'
+        )
+
+        pyldavis_path = os.path.join(
+            out_dir,
+            'plots',
+            filename + '_pyldavis.html'
+        )
 
         # train model
+        # TODO: higher / cusomizable iterations+passes?
         model = LdaModel(
             corpus=bows,
             iterations=50,
@@ -122,21 +142,28 @@ def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
         coh_topics = coherence_model.get_coherence_per_topic()
 
         # save priors
+        # TODO: shouldn't we save the whole array? (if there is one)
         alpha = model.alpha[0]
         eta = model.eta[0]
 
         # save report
         report = (n_top, alpha, eta, training_time, coh_score, coh_topics)
         report_list.append(report)
+
+        # TODO: check if this works
+        # if no, report has to be saved as a list itself
         with open(report_path, 'wb') as f:
-            pickle.dump(report, f)
+            ndjson.dump(report, f)
 
         # save model
         model.save(model_path)
 
         # produce a visualization
-        vis = pyLDAvis.gensim.prepare(model, bows, dictionary,
-                                      sort_topics=False)
+        # it is imperative that sort_topics should never be turned on!
+        vis = pyLDAvis.gensim.prepare(
+            model, bows, dictionary, sort_topics=False
+        )
+
         pyLDAvis.save_html(vis, pyldavis_path)
 
-        return None
+    return None
