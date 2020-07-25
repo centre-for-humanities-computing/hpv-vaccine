@@ -22,9 +22,9 @@ Right now the analysis is executed from [02_master.ipynb](https://github.com/cen
 TBA
 
 ## Data Assessment ##
-| Source | risk | Storage | Comment|
-| FB hpv subset | considerable | Kierkegaard |---|
-|||| |
+| Source | risk | Storage | Comment |
+| --- | --- | --- | --- |
+| FB hpv subset | considerable | Kierkegaard | |
 
 ## Time Estimate ##
 
