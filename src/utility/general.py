@@ -92,3 +92,44 @@ def make_folders(out_dir):
             os.mkdir(folder)
 
     return None
+
+
+def export_serialized(df, column='text', path=None):
+    '''
+    Serialize column to a dictionary,
+    where keys are ID and values are col.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe to unpack
+
+    column : str (default: 'text')
+        name of df's column to export
+
+    path : str, optional
+        where to save the resulting .ndjson object
+    '''
+    
+    # get ID column
+    df_id = (
+        df
+        .reset_index()
+        .rename(columns={'index': 'ID'})
+    )
+
+    # convert data to list of dicts
+    serial_output = []
+    for i, row in df_id.iterrows():
+        doc = {'ID': row['ID'], column: row[column]}
+        serial_output.append(doc)
+
+    # if path is specified, save & be silent
+    if path:
+        with open(path, 'w') as f:
+            ndjson.dump(serial_output, f)
+        return None
+
+    # if no path, return list of dicts
+    else:
+        return serial_output
