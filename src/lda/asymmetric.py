@@ -1,4 +1,10 @@
 """Iterate Gensim's LDA in search of good hyperparameters.
+
+TODO
+- add validate_input()?
+- more customizable model?
+- prior[0] is the whole array?
+- report exporting works?
 """
 
 import os
@@ -16,8 +22,7 @@ from src.utility.general import make_folders
 
 
 def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
-                        report_folder, model_folder, plot_folder,
-                        verbose=True):
+                        iterations, out_dir, verbose=True):
     '''Fit topic models and search for optimal hyperparameters.
 
     LDA will be fitted for each number of topics,
@@ -41,20 +46,23 @@ def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
         range of integers to use as the number of topics
         in interations of the topic model.
 
+    iterations : int
+        maximum number of iterations for each topic models
+
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
 
 
     Exports
     -------
-    report_lines/*
+    out_dir/report_lines/*
         pickled dict with model information
         (n topics, model coherence, per-topic coherence, hyperparameters)
         
-    models/*
+    out_dir/models/*
         gensim objects, where the model is saved.
         
-    plots/*
+    out_dir/plots/*
         pyLDAvis visualizations of the model
     '''
     # check how legit out_dir is
@@ -104,12 +112,12 @@ def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
         # TODO: higher / cusomizable iterations+passes?
         model = LdaModel(
             corpus=bows,
-            iterations=50,
+            iterations=iterations,
             ## optimizing hyperparameters
             num_topics=n_top,
             alpha='auto',
             eta='auto',
-            ## bizzare hyperparameters
+            ## fine hyperparameters
             decay=0.5,
             offset=1.0,
             eval_every=10,
