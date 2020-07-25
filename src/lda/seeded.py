@@ -1,8 +1,7 @@
 '''Iterate guidedlda's LDA in search of good hyperparameters.
 
 TODO
-- TfIdfVectorizer
-- save priors
+- extract list of topics for coherence
 
 - iterate seed_confidence?
 '''
@@ -10,10 +9,10 @@ import os
 from itertools import chain
 from time import time
 
-import pickle
 import ndjson
+from joblib import dump
 
-from sklearn.feature_extraction.text import CountVectorizer, TfIdfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import guidedlda
 import pyLDAvis.sklearn
 
@@ -163,10 +162,8 @@ def grid_search_lda_SED(texts, seed_topic_list,
         When fitting a single model, :int: is enough.
         Otherwise, input list of ints, a range, or other iterables.
 
-    priors_range : tuple
-        where 
-        priors_range[0] is range for alpha 
-        priors_range[1] is range for eta.
+    priors_range : list of tuples
+        where every 1st element is alpha, every 2nd is eta. 
 
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
@@ -220,10 +217,10 @@ def grid_search_lda_SED(texts, seed_topic_list,
     bows, dictionary = gensim_format(texts)
 
     # TRAIN MODELS
+    i = 0
     for n_top in chain(n_topics_range):
 
         # iterate over priors
-        # TODO
         for alpha, eta in priors_range:
 
             start_time = time() # track time
@@ -231,9 +228,9 @@ def grid_search_lda_SED(texts, seed_topic_list,
 
             # paths for saving
             filename = str(n_top) + "T_" + str(i) + "I_"
-            report_path = os.path.join(report_folder + filename + '.pickle')
-            model_path = os.path.join(model_folder + filename + '.model')
-            pyldavis_path = os.path.join(plot_folder + filename + '_pyldavis.html')
+            report_path = os.path.join(report_dir + filename + '.ndjson')
+            model_path = os.path.join(model_dir + filename + '.joblib')
+            pyldavis_path = os.path.join(plot_dir + filename + '_pyldavis.html')
 
             # train model
             model = guidedlda.GuidedLDA(
@@ -252,14 +249,18 @@ def grid_search_lda_SED(texts, seed_topic_list,
                 print('    Time: {}'.format(training_time))
 
             # save priors
-            # TODO
-            alpha = 'TODO'
-            eta = 'TODO'
+            alpha = model.alpha
+            eta = model.eta
 
             # coherence
-            coh_score, coh_topics = coherence_guidedlda(
-                bows=bows, dictionary=dictionary
-            )
+            # TODO extract topics
+            coh_score = 'TODO'
+            coh_topics = 'TODO'
+#             coh_score, coh_topics = coherence_guidedlda(
+#                 topics=topics
+#                 bows=bows,
+#                 dictionary=dictionary
+#             )
 
             # save report
             report = (n_top, alpha, eta, training_time, coh_score, coh_topics)
@@ -267,8 +268,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
                 ndjson.dump(report, f)
 
             # save model
-            with open(model_path, 'wb') as f:
-                pickle.dump(model, f)
+            dump(model, model_path)
 
             # produce a visualization
             nice = pyLDAvis.sklearn.prepare(model, X, vectorizer)
