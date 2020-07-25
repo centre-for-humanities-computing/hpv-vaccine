@@ -1,8 +1,24 @@
+'''Novelty, Transience & Resonance of your document-topic matrix of choice.
+
+TODO
+----
+
+Move doc-top matrix extraction to lda/ (!!!)
+- in gensim, loading bows. 
+- in gensim, save the doc-top matrix.
+- in sklearn, access & save doc-top matrix
+
+- calculate_ntr: IndexError
+'''
+
+from gensim.models import LdaModel
+from gensim.corpora import Dictionary
+
 from topicevolution.infodynamics import InfoDynamics
 from topicevolution.entropies import jsd
 
 
-def get_doc_top_gensim(lda_model_path, bows):
+def get_doc_top_gensim(lda_model_path, texts):
     '''
     Extract a document-topic matrix from your Gensim LDA model.
 
@@ -11,12 +27,15 @@ def get_doc_top_gensim(lda_model_path, bows):
     lda_model_path : str
         path to a .model file
 
-    bows : to be deleted & worked around
+    texts : list of lists
+        Data used to train the topic model.
+        Hopefully, to be deleted & worked around
     '''
     # load model
-    model = models.LdaModel.load(lda_model_path)
+    model = LdaModel.load(lda_model_path)
     # load bows
-    # TODO
+    dictionary = Dictionary(texts)
+    bows = [dictionary.doc2bow(tl) for tl in texts]
 
     # GENSIM doc-top matrix
     # min topic prob = 0 for uniform array shape
