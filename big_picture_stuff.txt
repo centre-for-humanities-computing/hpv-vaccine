@@ -1,7 +1,7 @@
 Decisions)
 
     seeded lda hyperparameter tuning
-        use those from gensim?
+        reasonable ranges?
     
     prepare seeds
         hyperparameters for Word2Vec?
@@ -12,13 +12,9 @@ Decisions)
         what about summarize doc-top-mat (will need to)
 
 
-Scripts)
+New scripts)
 
     from JSON -> tabular
-
-    grid search in seeded LDA
-        iterating through alpha & beta
-        coherence score(!)
 
     topic usage (detect topic in doc)
 
@@ -28,11 +24,12 @@ Scripts)
 
 
 Git repo)
-    
-    gitignore: models, data, except for test_data.txt
+
+    Readme
+        install, use requirements.txt
 
 
-Documentation)
+Usage)
     
     First thing: run everything in master.ipynb
     

@@ -2,12 +2,9 @@
 
 TODO
 - TfIdfVectorizer
-- iterate priors
-- iterate seed_confidence
-- docstring for grid search function
+- save priors
 
-- avg topic coherence
-- per-topic coherence
+- iterate seed_confidence?
 '''
 import os
 from itertools import chain
@@ -19,6 +16,9 @@ import ndjson
 from sklearn.feature_extraction.text import CountVectorizer, TfIdfVectorizer
 import guidedlda
 import pyLDAvis.sklearn
+
+from gensim import models, corpora
+from gensim.models.coherencemodel import CoherenceModel
 
 from src.utility.general import make_folders
 
@@ -86,10 +86,61 @@ def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
     return X, seed_priors, vectorizer
 
 
-def iterate_guidedlda(X, seed_priors, vectorizer,
-                      n_topics_range, priors_range,
-                      out_dir, iterations=2000,
-                      verbose=True):
+def gensim_format(texts):
+    '''
+    Tokenized texts to gensim objects.
+    For calculating topic coherence using gensim's CoherenceModel.
+    '''
+
+    dictionary = corpora.Dictionary(texts)
+    bows = [dictionary.doc2bow(tl) for tl in texts]
+
+    return bows, dictionary
+
+
+def coherence_guidedlda(topics, bows, dictionary):
+    '''
+    Parameters
+    ----------
+    topics : list of list of str
+        List of tokenized topics.
+        Be careful to keep topics in the same order 
+        as in your guidedlda model.
+
+    bows : iterable of list of (int, number)
+        Corpus in BoW format.
+
+    dictionary : :class:`~gensim.corpora.dictionary.Dictionary`
+        Gensim dictionary mapping of id word to create corpus.
+
+    Returns
+    -------
+    coh_score : float
+        average topics coherence of the whole model
+
+    coh_topics : list 
+        per-topic coherence scores (same order as topics)
+    '''
+
+    cm = CoherenceModel(
+        topics=topics,
+        corpus=bows,
+        dictionary=dictionary,
+        coherence='u_mass'
+    )
+
+    coh_score = cm.get_coherence()
+    coh_topics = coherence_model.get_coherence_per_topic()
+
+    return coh_score, coh_topics
+
+
+def grid_search_lda_SED(texts, seed_topic_list,
+                        n_topics_range, priors_range,
+                        out_dir,
+                        vectorizer_type='count',
+                        iterations=2000,
+                        verbose=True):
     '''
     Fit many topic models to pick the most tuned hyperparameters.
     Guidedlda version.
@@ -100,18 +151,17 @@ def iterate_guidedlda(X, seed_priors, vectorizer,
 
     Parameters
     ----------
-    X : ???
-        vectorized data to fit the model with.
+    texts : iterable
+        already preprocessed text data you want to build seeds on.
 
-    seed_priors : ???
-        array of hashed seeds to be feeded as priors for the model.
+    seed_topic_list : list of lists
+        list of words, where in seed_topic_list[x][y] 
+        x is a topic and y a word belonging in that topic.
 
-    vectorizer : ???
-        vectorizer pipeline object
-        Used for pyLDAvisualization.
-
-    n_topics_range : ???
-        XX
+    n_topics_range : iterable of int | int
+        Number of topics to fit the model with.
+        When fitting a single model, :int: is enough.
+        Otherwise, input list of ints, a range, or other iterables.
 
     priors_range : tuple
         where 
@@ -121,11 +171,15 @@ def iterate_guidedlda(X, seed_priors, vectorizer,
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
 
-    iterations : int (default: 2000)
+    vectorizer_type : str, optional (default: 'count')
+        Map documents using raw counts, or tfidf?
+        Options = {"count", "tfidf"}
+
+    iterations : int, optional (default: 2000)
         maximum number of iterations to fit a topic model with.
 
-    verbose : bool (default: True)
-        print progress comments?
+    verbose : bool, optional (default: True)
+        print progress comments.
 
 
     Exports
@@ -140,6 +194,7 @@ def iterate_guidedlda(X, seed_priors, vectorizer,
     out_dir/plots/*
         pyLDAvis visualizations of the model
     '''
+    # INITIALIZATION
     # prepare foldrs
     make_folders(out_dir)
 
@@ -148,19 +203,27 @@ def iterate_guidedlda(X, seed_priors, vectorizer,
     model_dir = os.path.join(out_dir, "models", "")
     plot_dir = os.path.join(out_dir, "plots", "")
 
-
     # if a single model is to be fitted,
     # make sure it can be "iterated"
     if isinstance(n_topics_range, int):
         n_topics_range = [n_topics_range]
 
-    # iterate over n topics
-    report_list = []
+    # PREPARE DATA
+    # for guidedlda fiting
+    X, seed_priors, vectorizer = init_guidedlda(
+        texts=texts,
+        seed_topic_list=seed_topic_list,
+        vectorizer_type=vectorizer_type
+    )
+
+    # for coherence counting
+    bows, dictionary = gensim_format(texts)
+
+    # TRAIN MODELS
     for n_top in chain(n_topics_range):
 
         # iterate over priors
         # TODO
-        smallio = []
         for alpha, eta in priors_range:
 
             start_time = time() # track time
@@ -188,12 +251,15 @@ def iterate_guidedlda(X, seed_priors, vectorizer,
             if verbose:
                 print('    Time: {}'.format(training_time))
 
-            # TODO: coherence
-            # coh_score : float : whole modle score
-            # coh_topics : list : per-topic coherence
+            # save priors
+            # TODO
+            alpha = 'TODO'
+            eta = 'TODO'
 
-    #         if verbose:
-    #             print('    Coherence: {}'.format(coh_score.round(2)))
+            # coherence
+            coh_score, coh_topics = coherence_guidedlda(
+                bows=bows, dictionary=dictionary
+            )
 
             # save report
             report = (n_top, alpha, eta, training_time, coh_score, coh_topics)
@@ -208,19 +274,4 @@ def iterate_guidedlda(X, seed_priors, vectorizer,
             nice = pyLDAvis.sklearn.prepare(model, X, vectorizer)
             pyLDAvis.save_html(nice, pyldavis_path)
 
-    return None
-
-
-def grid_search_lda_SED(texts, seed_topic_list, vectorizer):
-    '''
-    Wrapper for functions init_guidedlda & iterate_guidedlda.
-    For documentation, see their docstrings.
-    '''
-    
-    X, seed_priors, vectorizer = get_seeds(texts, seed_topic_list, vectorizer)
-    
-    iterate_guidedlda(X, seed_priors, vectorizer,
-                      n_topics_range, priors_range
-                      report_folder, model_folder, plot_folder,
-                      verbose=True)
     return None
