@@ -7,9 +7,12 @@ Decisions)
         hyperparameters for Word2Vec?
         or am I using PmiSvd?
 
-    gensim format / doc-top-matrix extraction
-        in lda/, or in ntr/?
-        what about summarize doc-top-mat (will need to)
+    gensim format
+        own utility script
+
+    doc-top-matrix
+        extraction: move to lda/!
+        summarize: rolling average?
 
 
 New scripts)
