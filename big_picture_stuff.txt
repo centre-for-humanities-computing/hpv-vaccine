@@ -21,9 +21,9 @@ New scripts)
 
     topic usage (detect topic in doc)
 
-    keep track of post ID somefucking how.
-        merge with original dataset after preprocessing?
-        or keep adding ID while preprocessing?
+    keep track of post ID
+        assign ID to each document in preprocessing
+        keep doc ID at hand in the other steps
 
 
 Git repo)
