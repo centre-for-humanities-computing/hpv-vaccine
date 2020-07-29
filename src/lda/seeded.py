@@ -10,6 +10,7 @@ from itertools import chain
 from time import time
 
 import ndjson
+import numpy as np
 from joblib import dump
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
@@ -129,7 +130,7 @@ def coherence_guidedlda(topics, bows, dictionary):
     )
 
     coh_score = cm.get_coherence()
-    coh_topics = coherence_model.get_coherence_per_topic()
+    coh_topics = cm.get_coherence_per_topic()
 
     return coh_score, coh_topics
 
@@ -137,6 +138,7 @@ def coherence_guidedlda(topics, bows, dictionary):
 def grid_search_lda_SED(texts, seed_topic_list,
                         n_topics_range, priors_range,
                         out_dir,
+                        n_top_words=10,
                         vectorizer_type='count',
                         iterations=2000,
                         verbose=True):
@@ -167,6 +169,9 @@ def grid_search_lda_SED(texts, seed_topic_list,
 
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
+
+    n_top_words : int
+        when extracting top words associated with each topics, how many to pick?
 
     vectorizer_type : str, optional (default: 'count')
         Map documents using raw counts, or tfidf?
@@ -227,7 +232,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
             i += 1 # track iterations
 
             # paths for saving
-            filename = str(n_top) + "T_" + str(i) + "I_"
+            filename = str(n_top) + "T_" + str(i) + "I_" + 'seed'
             report_path = os.path.join(report_dir + filename + '.ndjson')
             model_path = os.path.join(model_dir + filename + '.joblib')
             pyldavis_path = os.path.join(plot_dir + filename + '_pyldavis.html')
@@ -252,15 +257,29 @@ def grid_search_lda_SED(texts, seed_topic_list,
             alpha = model.alpha
             eta = model.eta
 
-            # coherence
-            # TODO extract topics
-            coh_score = 'TODO'
-            coh_topics = 'TODO'
-#             coh_score, coh_topics = coherence_guidedlda(
-#                 topics=topics
-#                 bows=bows,
-#                 dictionary=dictionary
-#             )
+            # extract topic words
+            topics = []
+            for i, topic_dist in enumerate(model.topic_word_):
+                topic_words = (
+                    # take vocab (list of tokens in order)
+                    np.array(vectorizer.get_feature_names())
+                    # take term-topic distribution (topic_dist),
+                    # where topic_dist[0] is probability of vocab[0] in that topic
+                    # and sort vocab in descending order
+                    [np.argsort(topic_dist)]
+                    # selected & reorder so that only words only n_top_words+1 are kept
+                    [:-(n_top_words+1):-1]
+                )
+                # array to list
+                topic_words = [word for word in topic_words]
+                topics.append(topic_words)
+
+            # calculate topic coherence based on the extracted topics
+            coh_score, coh_topics = coherence_guidedlda(
+                topics=topics,
+                bows=bows,
+                dictionary=dictionary
+            )
 
             # save report
             report = (n_top, alpha, eta, training_time, coh_score, coh_topics)
