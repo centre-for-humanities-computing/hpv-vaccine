@@ -22,6 +22,9 @@ New scripts)
     topic usage (detect topic in doc)
 
     parallel preprocessing
+    
+    02_master problem: circular dependencies?
+        cannot import e.g. from src.general.utility import compile_report 
 
 
 Git repo)
