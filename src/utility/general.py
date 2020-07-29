@@ -84,9 +84,10 @@ def make_folders(out_dir):
     report_dir = os.path.join(out_dir, "report_lines", "")
     model_dir = os.path.join(out_dir, "models", "")
     plot_dir = os.path.join(out_dir, "plots", "")
+    doctop_dir = os.path.join(out_dir, "doctop_mats", "")
 
     # create sub-folders
-    for folder in [report_dir, model_dir, plot_dir]:
+    for folder in [report_dir, model_dir, plot_dir, doctop_dir]:
         # check if dir already exists
         if not os.path.exists(folder):
             os.mkdir(folder)
