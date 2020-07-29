@@ -1,5 +1,8 @@
 """
 Class for estimation of information dynamics of time-dependent probabilistic document representations
+
+Forked from centre-for-humanities-computing/newsFluxus
+Author: Kristoffer L. Nielbo
 """
 import numpy as np
 
