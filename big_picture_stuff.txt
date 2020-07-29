@@ -7,10 +7,6 @@ Decisions)
         hyperparameters for Word2Vec?
         or am I using PmiSvd?
 
-    doc-top-matrix
-        extraction: move to lda/!
-        summarize: rolling average?
-
     coherence values
         look very different between ASM and SEED, despite both runing on gensim's CoherenceModel.
         What the hell?
@@ -18,14 +14,16 @@ Decisions)
 
 New scripts)
 
-    from JSON -> tabular
+    push the JSON -> tabular part
 
     topic usage (detect topic in doc)
 
-    parallel preprocessing
-    
-    02_master problem: circular dependencies?
-        cannot import e.g. from src.general.utility import compile_report 
+    preprocessing
+        seems like there's a problem in the second half of the dataset,
+        that makes pytorch crash
+
+    final time series plot
+        with ntr + topic usage
 
 
 Git repo)

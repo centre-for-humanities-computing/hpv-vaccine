@@ -22,7 +22,7 @@ from src.utility.general import make_folders
 
 
 def grid_search_lda_ASM(texts,
-                        n_topics_range, iterations, pases,
+                        n_topics_range, iterations, passes,
                         out_dir, verbose=True, save_doc_top=True):
     '''Fit topic models and search for optimal hyperparameters.
 
@@ -186,8 +186,10 @@ def grid_search_lda_ASM(texts,
                        for doc in model[bows]]
 
             # unnest (n topic, prob) tuples
+            # float to convert from np.float32 which is not
+            # JSON serializable
             doc_top_prob = [
-                [prob for i, prob in doc]
+                [float(prob) for i, prob in doc]
                 for doc in doc_top
             ]
 
