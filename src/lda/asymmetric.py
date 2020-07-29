@@ -11,7 +11,7 @@ import os
 from itertools import chain
 from time import time
 
-from six.moves import cPickle as pickle
+import ndjson
 
 from gensim import models, corpora
 from gensim.models.coherencemodel import CoherenceModel
@@ -21,8 +21,9 @@ import pyLDAvis.gensim
 from src.utility.general import make_folders
 
 
-def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
-                        iterations, out_dir, verbose=True):
+def grid_search_lda_ASM(texts,
+                        n_topics_range, iterations, pases,
+                        out_dir, verbose=True):
     '''Fit topic models and search for optimal hyperparameters.
 
     LDA will be fitted for each number of topics,
@@ -36,18 +37,15 @@ def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
         preprocessed corpus, where texts[0] is a document
         and texts[0][0] is a token.
 
-    dictionary : gensim.corpora.Dictionary
-        gensim dictionary of texts
-
-    bows : gensim.doc2bow
-        bag of words representation of the corpus (texts)
-
     n_topics_range : range of int
         range of integers to use as the number of topics
         in interations of the topic model.
 
     iterations : int
         maximum number of iterations for each topic models
+
+    passes : int
+        maximum number of passes (start iterations again) for each topic models
 
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
@@ -89,11 +87,11 @@ def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
         # paths for saving
         ## it's not very elegant defining the paths here
         ## after there already is funciton make_folders
-        filename = str(n_top) + "T_" + str(i)
+        filename = str(n_top) + "T_" + 'ASM'
         report_path = os.path.join(
             out_dir,
             'report_lines',
-            filename + '.pickle'
+            filename + '.ndjson'
         )
 
         model_path = os.path.join(
@@ -109,7 +107,7 @@ def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
         )
 
         # train model
-        # TODO: higher / cusomizable iterations+passes?
+        # TODO: higher / cusomizable fine hyperparameters?
         model = LdaModel(
             corpus=bows,
             iterations=iterations,
@@ -128,7 +126,7 @@ def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
             random_state=None,
             per_word_topics=False,
             id2word=dictionary,
-            passes=1)
+            passes=passes)
 
         # track time usage
         training_time = time() - start_time
@@ -143,24 +141,19 @@ def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
         )
 
         coh_score = coherence_model.get_coherence()
+        coh_topics = coherence_model.get_coherence_per_topic()
 
         if verbose:
             print('    Coherence: {}'.format(coh_score.round(2)))
 
-        coh_topics = coherence_model.get_coherence_per_topic()
-
         # save priors
-        # TODO: shouldn't we save the whole array? (if there is one)
-        alpha = model.alpha[0]
-        eta = model.eta[0]
+        alpha = model.alpha.tolist()
+        eta = model.eta.tolist()
 
         # save report
         report = (n_top, alpha, eta, training_time, coh_score, coh_topics)
         report_list.append(report)
-
-        # TODO: check if this works
-        # if no, report has to be saved as a list itself
-        with open(report_path, 'wb') as f:
+        with open(report_path, 'w') as f:
             ndjson.dump(report, f)
 
         # save model
