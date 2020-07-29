@@ -2,9 +2,13 @@
 Multinomial Bayes for text classification.
 
 In this project,
-binary classification of FB posts (detecting giveaways & viral marketing) 
+binary classification of FB posts (detecting giveaways & viral marketing)
+
+TODO:
+- docstrings
 '''
 
+import re
 from collections import Counter
 
 import pandas as pd
@@ -21,7 +25,7 @@ from sklearn.metrics import accuracy_score, brier_score_loss, classification_rep
 
 
 class GiveawayClassifier:
-    
+
     def __init__(self, X, y, seed = 11):
         X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y,
                                                                     test_size=0.3,
@@ -31,7 +35,6 @@ class GiveawayClassifier:
         self.X_test_raw = X_test_raw
         self.y_train = y_train
         self.y_test = y_test
-        
         
     def _make_features(self):
         
@@ -61,8 +64,7 @@ class GiveawayClassifier:
         self.X_train = X_train
         self.X_test = X_test
         self.vocab = tok2indx
-        
-        
+
     def evaluate_model(self, y_true, y_pred):
 
         # df to save resutls to
@@ -88,8 +90,7 @@ class GiveawayClassifier:
         out.update({"precision_giveaway": [preB]})
 
         return pd.DataFrame.from_dict(out)
-    
-    
+
     def train(self):
         
         # preprocess
@@ -147,8 +148,7 @@ class GiveawayClassifier:
                                   name='prob_giveaway')
 
         self.term_importance = terms.join(prob_neutral).join(prob_giveaway)
-        
-        
+    
     def get_misses(self, which=None, split=None, report=False):
         
         # get the right split
@@ -179,8 +179,21 @@ class GiveawayClassifier:
         
         return d
 
+    @staticmethod
+    def _negative_for_url(df):
+        '''
+        A post that only contains a link should not be classified as a giveaway.
+        This rewrites the model's prediction for texts that are a link.
+        '''
+        # a monster regex for matching links
+        url_pattern = re.compile(r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
 
-    def predict_new(self, new_data):
+        url_idx = np.array(df['text'].str.match(url_pattern))
+        df.loc[url_idx, ['predicted']] = 0
+
+        return df
+
+    def predict_new(self, new_data, negative_for_url=False):
 
         vectorizer_new = CountVectorizer(vocabulary=self.vocab)
         X_new = vectorizer_new.transform(new_data)
@@ -190,5 +203,8 @@ class GiveawayClassifier:
 
         new_df = pd.DataFrame(new_data)
         new_aug = new_df.reset_index().join(ser_new_y_pred)
+
+        if negative_for_url:
+            new_aug = self._negative_for_url(new_aug)
 
         return new_aug
