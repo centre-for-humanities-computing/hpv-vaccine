@@ -3,14 +3,19 @@
 TODO
 ----
 - calculate_ntr: IndexError
+- kz: seems like it's only working 50%
 '''
+import os
+from itertools import chain
+
+import ndjson
 import pandas as pd
 
 from gensim.models import LdaModel
 from gensim.corpora import Dictionary
 
-from topicevolution.infodynamics import InfoDynamics
-from topicevolution.entropies import jsd
+from src.topicevolution.infodynamics import InfoDynamics
+from src.topicevolution.entropies import jsd
 
 
 def summarzie_doc_top():
@@ -29,12 +34,15 @@ def summarzie_doc_top():
     return None
 
 
-def kz(series, window, iterations):
+def kz(df, window, iterations):
     """KZ filter implementation
+    
+    pd.rolling_mean() which the OG code relied on is deprecated.
+    Rolling.mean() probably doen't do the same thing with the iterations.
     
     Parameters
     ----------
-    series : pd.Series
+    df : pd.DataFrame | pd.Series
 
     window : int 
         filter window m in the units of the data (m = 2q+1)
@@ -44,13 +52,13 @@ def kz(series, window, iterations):
     
     Source: https://stackoverflow.com/questions/32788526/python-scipy-kolmogorov-zurbenko-filter
     """
-    z = series.copy()
+    z = df.copy()
     for i in range(iterations):
-        z = pd.rolling_mean(z, window=window, min_periods=1, center=True)
+        z = df.rolling(window=window, min_periods=1, center=True).mean()
     return z
 
 
-def calculate_ntr(doc_top_prob, time, window, out_dir=None):
+def calculate_ntr(doc_top_prob, ID, window, out_dir=None):
     '''Based on document-topic matrix, calcualte Novelty, Transience & Resonance.
     
     Parameters
@@ -58,43 +66,59 @@ def calculate_ntr(doc_top_prob, time, window, out_dir=None):
     doc_top_prob : list/array (of lists)
         document-topic-matrix of your topic model
 
-    time : list/array
-        Time coordinate for each document (identical order as data)
+    ID : list/array
+        identifier, or coordinate for each document (identical order as data)
         Required by InfoDynamics
 
-    window : int
+    window : int or range
         Number of documents to calculate Nov, Tra, Res against.
         See Barron, Huang, Spang & DeDeo (2018) for details.
 
-    out_path : str (optional)
-        Where to save the results.
+    out_dir : str (optional)
+        Directory where to save the results.
     '''
-    # signal calculation
-    idmdl = InfoDynamics(data=doc_top_prob, time=time,
-                         window=window, weight=0, sort=False)
-    idmdl.novelty(meas = jsd)
-    idmdl.transience(meas = jsd)
-    idmdl.resonance(meas = jsd)
+    # if a single model is to be fitted,
+    # make sure it can be "iterated"
+    if isinstance(window, int):
+        window = [window]
 
-    lignes = list()
-    for i, time in enumerate(dates):
-        d = dict()
-        d["date"] = time
-        # HACK because of IndexError
-        try:
-            d["novelty"] = idmdl.nsignal[i] 
-            d["transience"] = idmdl.tsignal[i]
-            d["resonance"] = idmdl.rsignal[i]
-            d["nsigma"] = idmdl.nsigma[i]
-            d["tsigma"] = idmdl.tsigma[i]
-            d["rsigma"] = idmdl.rsigma[i]
-        except IndexError:
-            print("[info] there was an Index Error, but we're taking care of the situation")
-            pass
-        lignes.append(d)
+    # make sure there is a folder to save it
+    if out_dir:
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
 
-    if outpath:
-        with open(outpath, "w") as f:
-            ndjson.dump(lignes, f)
+    for w in chain(window):
+        # signal calculation
+        idmdl = InfoDynamics(data=doc_top_prob, time=ID,
+                             window=w, weight=0, sort=False)
+        idmdl.novelty(meas = jsd)
+        idmdl.transience(meas = jsd)
+        idmdl.resonance(meas = jsd)
 
-    return lignes
+        lignes = list()
+        for i, time in enumerate(ID):
+            d = dict()
+            d["date"] = time
+            # HACK because of IndexError
+            try:
+                d["novelty"] = idmdl.nsignal[i] 
+                d["transience"] = idmdl.tsignal[i]
+                d["resonance"] = idmdl.rsignal[i]
+                d["nsigma"] = idmdl.nsigma[i]
+                d["tsigma"] = idmdl.tsigma[i]
+                d["rsigma"] = idmdl.rsigma[i]
+            except IndexError:
+                print("[info] there was an Index Error, but we're taking care of the situation")
+                pass
+            lignes.append(d)
+
+        if out_dir:
+            # make a filename
+            filename = str(w) + 'W' + '.csv'
+            outpath = out_dir + filename
+
+            # export
+            with open(outpath, "w") as f:
+                ndjson.dump(lignes, f)
+
+    return None
