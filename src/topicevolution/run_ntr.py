@@ -4,6 +4,7 @@ TODO
 ----
 - calculate_ntr: IndexError
 '''
+import pandas as pd
 
 from gensim.models import LdaModel
 from gensim.corpora import Dictionary
@@ -26,6 +27,27 @@ def summarzie_doc_top():
     ???
     '''
     return None
+
+
+def kz(series, window, iterations):
+    """KZ filter implementation
+    
+    Parameters
+    ----------
+    series : pd.Series
+
+    window : int 
+        filter window m in the units of the data (m = 2q+1)
+
+    iterations : int
+        the number of times the moving average is evaluated
+    
+    Source: https://stackoverflow.com/questions/32788526/python-scipy-kolmogorov-zurbenko-filter
+    """
+    z = series.copy()
+    for i in range(iterations):
+        z = pd.rolling_mean(z, window=window, min_periods=1, center=True)
+    return z
 
 
 def calculate_ntr(doc_top_prob, time, window, out_dir=None):
