@@ -21,7 +21,7 @@ import pyLDAvis.gensim
 from src.utility.general import make_folders
 
 
-def lda_grid_search_ASM(texts, dictionary, bows, n_topics_range,
+def grid_search_lda_ASM(texts, dictionary, bows, n_topics_range,
                         iterations, out_dir, verbose=True):
     '''Fit topic models and search for optimal hyperparameters.
 
