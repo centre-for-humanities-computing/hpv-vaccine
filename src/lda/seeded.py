@@ -1,8 +1,6 @@
 '''Iterate guidedlda's LDA in search of good hyperparameters.
 
 TODO
-- extract list of topics for coherence
-
 - iterate seed_confidence?
 '''
 import os
@@ -50,7 +48,6 @@ def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
 
     # choose vectorizer
     if vectorizer_type is 'tfidf':
-        # TODO: this is dummy code
         vectorizer = TfIdfVectorizer(
             analyzer='word',
             tokenizer=do_nothing,
@@ -141,6 +138,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
                         n_top_words=10,
                         vectorizer_type='count',
                         iterations=2000,
+                        save_doc_top=True,
                         verbose=True):
     '''
     Fit many topic models to pick the most tuned hyperparameters.
@@ -180,6 +178,9 @@ def grid_search_lda_SED(texts, seed_topic_list,
     iterations : int, optional (default: 2000)
         maximum number of iterations to fit a topic model with.
 
+    save_doc_top : bool
+        save documet-topic matices from models?
+
     verbose : bool, optional (default: True)
         print progress comments.
 
@@ -204,6 +205,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
     report_dir = os.path.join(out_dir, "report_lines", "")
     model_dir = os.path.join(out_dir, "models", "")
     plot_dir = os.path.join(out_dir, "plots", "")
+    doctop_dir = os.path.join(out_dir, 'doctop_mats', '')
 
     # if a single model is to be fitted,
     # make sure it can be "iterated"
@@ -236,6 +238,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
             report_path = os.path.join(report_dir + filename + '.ndjson')
             model_path = os.path.join(model_dir + filename + '.joblib')
             pyldavis_path = os.path.join(plot_dir + filename + '_pyldavis.html')
+            doctop_path = os.path.join(doctop_dir + filename + '_mat.ndjson')
 
             # train model
             model = guidedlda.GuidedLDA(
@@ -292,5 +295,16 @@ def grid_search_lda_SED(texts, seed_topic_list,
             # produce a visualization
             nice = pyLDAvis.sklearn.prepare(model, X, vectorizer)
             pyLDAvis.save_html(nice, pyldavis_path)
+
+            # save document-topic matrix
+            if save_doc_top:
+                doc_topic = (
+                    model
+                    .transform(X)
+                    .tolist()
+                )
+
+                with open(doctop_path, 'w') as f:
+                    ndjson.dump(doc_topic, f)
 
     return None

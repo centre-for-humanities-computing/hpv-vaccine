@@ -23,7 +23,7 @@ from src.utility.general import make_folders
 
 def grid_search_lda_ASM(texts,
                         n_topics_range, iterations, pases,
-                        out_dir, verbose=True):
+                        out_dir, verbose=True, save_doc_top=True):
     '''Fit topic models and search for optimal hyperparameters.
 
     LDA will be fitted for each number of topics,
@@ -49,6 +49,12 @@ def grid_search_lda_ASM(texts,
 
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
+
+    verbose : bool
+        give comments about the progress?
+
+    save_doc_top : bool
+        save documet-topic matices from models?
 
 
     Exports
@@ -104,6 +110,12 @@ def grid_search_lda_ASM(texts,
             out_dir,
             'plots',
             filename + '_pyldavis.html'
+        )
+
+        doctop_path = os.path.join(
+            out_dir,
+            'doctop_mats',
+            filename + '_mat.ndjson'
         )
 
         # train model
@@ -166,5 +178,21 @@ def grid_search_lda_ASM(texts,
         )
 
         pyLDAvis.save_html(vis, pyldavis_path)
+
+        # save document-topic matrix
+        if save_doc_top:
+            # keep minimum_probability at 0 for a complete matrix
+            doc_top = [model.get_document_topics(doc, minimum_probability=0)
+                       for doc in model[bows]]
+
+            # unnest (n topic, prob) tuples
+            doc_top_prob = [
+                [prob for i, prob in doc]
+                for doc in doc_top
+            ]
+
+            # save the matrix as ndjson
+            with open(doctop_path, 'w') as f:
+                ndjson.dump(doc_top_prob, f)
 
     return None

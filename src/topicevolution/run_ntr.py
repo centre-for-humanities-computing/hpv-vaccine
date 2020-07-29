@@ -2,12 +2,6 @@
 
 TODO
 ----
-
-Move doc-top matrix extraction to lda/ (!!!)
-- in gensim, loading bows. 
-- in gensim, save the doc-top matrix.
-- in sklearn, access & save doc-top matrix
-
 - calculate_ntr: IndexError
 '''
 
@@ -18,65 +12,7 @@ from topicevolution.infodynamics import InfoDynamics
 from topicevolution.entropies import jsd
 
 
-def get_doc_top_gensim(lda_model_path, texts):
-    '''
-    Extract a document-topic matrix from your Gensim LDA model.
-
-    Parameters
-    ----------
-    lda_model_path : str
-        path to a .model file
-
-    texts : list of lists
-        Data used to train the topic model.
-        Hopefully, to be deleted & worked around
-    '''
-    # load model
-    model = LdaModel.load(lda_model_path)
-    # load bows
-    dictionary = Dictionary(texts)
-    bows = [dictionary.doc2bow(tl) for tl in texts]
-
-    # GENSIM doc-top matrix
-    # min topic prob = 0 for uniform array shape
-    doc_top = [model.get_document_topics(doc, minimum_probability=0)
-               for doc in model[bows]]
-
-    # unnest (n topic, prob) tuples
-    doc_top_prob = [
-        [prob for i, prob in doc]
-        for doc in doc_top
-    ]
-
-    # TODO: export document-topic matrix
-#     doctopics_df = pd.DataFrame([])
-#     for doc in doc_top_prob:
-#         doc = pd.DataFrame(doc).transpose() 
-#         doctopics_df = doctopics_df.append(doc.iloc[1,:],
-#                                            ignore_index=True)
-#     doc_top_matrix_path = os.path.join(
-#         out_dir, 'data',
-#         lda_model_path.replace('.model',''), "T_doctopmat.csv"
-#     )
-#     doctopics_df.to_csv('topic_models/batch_200621/topic_evolution/22T_doctop.csv')
-
-    return doc_top_prob
-
-
-def get_doc_top_sklearn(lda_model_path):
-    '''
-    Extract a document-topic matrix from your Sklearn LDA, or guidedlda model.
-
-    Parameters
-    ----------
-    lda_model_path : str
-        path to a .model file
-    '''
-
-    return None # doc_top_prob
-
-
-def summarie_doc_top():
+def summarzie_doc_top():
     '''
     Summarizes probability distributions from a document-topic matrix
     into a distribution, corresponding to chunks of certain temporal length.
