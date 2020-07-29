@@ -133,3 +133,50 @@ def export_serialized(df, column='text', path=None):
     # if no path, return list of dicts
     else:
         return serial_output
+
+
+def compile_report(report_dir):
+    '''
+    Join partial reports from LDA training into one DF.
+    Returns a DF sorted in descending order by avg topic coherence in that model.
+
+    Parameters
+    ----------
+    report_dir : str
+        path to directory, where reports are saved.
+        Report are serialized tuples in .ndjson format.
+        See lda training scripts for details.
+    '''
+    # get a list of paths to import
+    report_paths = []
+    for file in os.listdir(report_dir):
+        if file.endswith(".ndjson"):
+            # tuple with whole path and file name
+            path_and_file = tuple([report_dir + file, file])
+            # append both
+            report_paths.append(path_and_file)
+
+    # iterate through paths, converting them into DF rows
+    dfs = pd.DataFrame([])
+    for path, model_name in report_paths:
+        # load the tuple
+        with open(path, 'rb') as f:
+            report = ndjson.load(f)
+
+        # convert to a df row
+        report_row = pd.DataFrame([report],
+                                  columns=['n_top', 'alpha', 'eta',
+                                           'training_time', 'coh_score',
+                                           'coh_topic'])
+        # add model name info
+        report_row.insert(0, 'model', model_name.replace('.ndjson', ''))
+        # compile report
+        dfs = dfs.append(report_row)
+
+    # sort models
+    dfs = (dfs
+           .sort_values(by='coh_score', ascending=False)
+           .reset_index()
+           .drop('index', 1))
+
+    return dfs
