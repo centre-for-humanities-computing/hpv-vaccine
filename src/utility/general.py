@@ -65,7 +65,7 @@ def load_data(ndjson_path):
 
     obj_dfs = [pd.DataFrame(dat) for dat in obj]
 
-    return obj
+    return obj_dfs
 
 
 def make_folders(out_dir):
