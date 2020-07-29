@@ -21,9 +21,7 @@ New scripts)
 
     topic usage (detect topic in doc)
 
-    keep track of post ID
-        assign ID to each document in preprocessing
-        keep doc ID at hand in the other steps
+    parallel preprocessing
 
 
 Git repo)

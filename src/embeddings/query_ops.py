@@ -1,19 +1,22 @@
 '''
 Operations with query terms given to us by the researchers.
 '''
-
+import numpy as np
 import pandas as pd
+
 from gensim.models import Word2Vec, KeyedVectors
+
 import text_to_x as ttx
 
 
-def import_query(ordlist_path, lang, collapse=True):
+def import_query(ordlist_path, lang, col='word', collapse=True):
     '''
     Get query terms in & preprocess.
     '''
     # query
-    query = pd.read_csv(ordlist_path)
-    query_words = [row for row in query.iloc[:,0]]
+    query = (pd.read_csv(ordlist_path)
+             .dropna(subset=[col]))
+    query_words = [row for row in query.loc[:,col]]
 
     # preprocess query terms
     ttt_da = ttx.TextToTokens(lang=lang)
@@ -29,7 +32,7 @@ def import_query(ordlist_path, lang, collapse=True):
     if collapse:
         # collapse back together
         query_list = [' '.join(ngram)
-                      for ngram in query_terms]
+                      for ngram in query_list]
     
     return query_list
 
