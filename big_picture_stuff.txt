@@ -11,6 +11,9 @@ Decisions)
         look very different between ASM and SEED, despite both runing on gensim's CoherenceModel.
         What the hell?
 
+    duplicates
+        in case of duplicate posts, should they be removed?
+
 
 New scripts)
 
