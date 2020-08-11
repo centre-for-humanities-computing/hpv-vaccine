@@ -2,9 +2,7 @@
 
 TODO
 - add validate_input()?
-- more customizable model?
-- prior[0] is the whole array?
-- report exporting works?
+- more customizable model call?
 """
 
 import os
