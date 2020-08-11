@@ -58,8 +58,60 @@ def kz(df, window, iterations):
     return z
 
 
-def calculate_ntr(doc_top_prob, ID, window, out_dir=None):
+def calculate(doc_top_prob, ID, window: int, out_dir=None, curb_incomplete=False):
+    '''Calculate Novelty, Transience & Resonance on a single window.
+    This function is wrapped in process_windows() - see it for details.
+    '''
+
+    # make sure there is a folder to save it
+    if out_dir:
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+    # signal calculation
+    idmdl = InfoDynamics(data=doc_top_prob, time=ID,
+                         window=window, weight=0, sort=False)
+    idmdl.novelty(meas = jsd)
+    idmdl.transience(meas = jsd)
+    idmdl.resonance(meas = jsd)
+
+    lignes = list()
+    for i, doc_id in enumerate(ID):
+        d = dict()
+        d["doc_id"] = doc_id
+        # HACK because of IndexError
+        try:
+            d["novelty"] = idmdl.nsignal[i] 
+            d["transience"] = idmdl.tsignal[i]
+            d["resonance"] = idmdl.rsignal[i]
+            d["nsigma"] = idmdl.nsigma[i]
+            d["tsigma"] = idmdl.tsigma[i]
+            d["rsigma"] = idmdl.rsigma[i]
+        except IndexError:
+            print("[info] there was an Index Error, proceed with caution")
+            pass
+
+        lignes.append(d)
+
+    if curb_incomplete:
+        # keep only rows with full records
+        d = d[window:-window]
+
+    if out_dir:
+        # make a filename
+        filename = str(window) + 'W' + '.ndjson'
+        outpath = out_dir + filename
+
+        # export
+        with open(outpath, "w") as f:
+            ndjson.dump(lignes, f)
+
+    return None
+
+
+def process_windows(doc_top_prob, ID, window, out_dir=None, curb_incomplete=False):
     '''Based on document-topic matrix, calcualte Novelty, Transience & Resonance.
+    Entropy is calcualted relative to past and future documents.
     
     Parameters
     ----------
@@ -76,49 +128,30 @@ def calculate_ntr(doc_top_prob, ID, window, out_dir=None):
 
     out_dir : str (optional)
         Directory where to save the results.
+
+    curb_incomplete : bool (default=False)
+        Delete first & last {window} rows?
+        
+        If false, 
+        - first {window} rows will have Novelty = 0 
+        - last {window} rows will have Transience = 0
+
+        If true, these rows will not be included in the output.
+        
     '''
     # if a single model is to be fitted,
     # make sure it can be "iterated"
     if isinstance(window, int):
         window = [window]
 
-    # make sure there is a folder to save it
-    if out_dir:
-        if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
-
-    for w in chain(window):
-        # signal calculation
-        idmdl = InfoDynamics(data=doc_top_prob, time=ID,
-                             window=w, weight=0, sort=False)
-        idmdl.novelty(meas = jsd)
-        idmdl.transience(meas = jsd)
-        idmdl.resonance(meas = jsd)
-
-        lignes = list()
-        for i, time in enumerate(ID):
-            d = dict()
-            d["date"] = time
-            # HACK because of IndexError
-            try:
-                d["novelty"] = idmdl.nsignal[i] 
-                d["transience"] = idmdl.tsignal[i]
-                d["resonance"] = idmdl.rsignal[i]
-                d["nsigma"] = idmdl.nsigma[i]
-                d["tsigma"] = idmdl.tsigma[i]
-                d["rsigma"] = idmdl.rsigma[i]
-            except IndexError:
-                print("[info] there was an Index Error, but we're taking care of the situation")
-                pass
-            lignes.append(d)
-
-        if out_dir:
-            # make a filename
-            filename = str(w) + 'W' + '.csv'
-            outpath = out_dir + filename
-
-            # export
-            with open(outpath, "w") as f:
-                ndjson.dump(lignes, f)
+    # iterate a list of windows
+    for W in chain(window):
+        calculate(
+            doc_top_prob=doc_top_prob,
+            ID=ID,
+            window=W,
+            out_dir=out_dir,
+            curb_incomplete=curb_incomplete
+        )
 
     return None

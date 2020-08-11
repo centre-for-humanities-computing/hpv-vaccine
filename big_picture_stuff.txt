@@ -13,6 +13,7 @@ Decisions)
 
     duplicates
         in case of duplicate posts, should they be removed?
+        Probably no.
 
 
 New scripts)
@@ -20,13 +21,18 @@ New scripts)
     push the JSON -> tabular part
 
     topic usage (detect topic in doc)
-
-    preprocessing
-        seems like there's a problem in the second half of the dataset,
-        that makes pytorch crash
+        https://jeriwieringa.com/2017/06/21/Calculating-and-Visualizing-Topic-Significance-over-Time-Part-1/
+        1) normalize "topic weights" - topic probablities assigned to one document have a sum of 1
+        2) aggregate topic weights over a time window
+        3) 
 
     final time series plot
         with ntr + topic usage
+
+    batch/path variable
+        won't work on windows.
+        Wrap in os.path.join nicely.
+
 
 
 Git repo)
