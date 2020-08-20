@@ -60,7 +60,7 @@ def sim_report(model, query, topn=10, include_query=True, out_df=False):
     if out_df:
         sim_list_freq = pd.DataFrame(sim_list_freq,
                                      columns=['related', 'similarity', 'count'])
-        sim_list_freq.insert(0, 'query', query)
+        sim_list_freq.insert(0, 'term', query)
     
     return sim_list_freq
 
@@ -91,7 +91,7 @@ def get_related(model, terms, topn=10, cutoff=500):
             one = sim_report(model, term, out_df=True)
             all_related = all_related.append(one)
         except KeyError:
-            one = pd.DataFrame({'query': [term],
+            one = pd.DataFrame({'term': [term],
                                 'related': np.nan,
                                 'similarity': np.nan,
                                 'count': np.nan})
