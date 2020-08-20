@@ -48,7 +48,7 @@ def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
 
     # choose vectorizer
     if vectorizer_type is 'tfidf':
-        vectorizer = TfIdfVectorizer(
+        vectorizer = TfidfVectorizer(
             analyzer='word',
             tokenizer=do_nothing,
             preprocessor=None,
