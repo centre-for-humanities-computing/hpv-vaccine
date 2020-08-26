@@ -214,13 +214,17 @@ def grid_search_lda_SED(texts, seed_topic_list,
     for n_top in chain(n_topics_range):
 
         # iterate over priors
-        for alpha, eta in priors_range:
+        for alpha_, eta_ in priors_range:
 
+            # track time
             start_time = time() # track time
-            i += 1 # track iterations
+            # track iterations
+            topic_fname = str(n_top) + "T_"
+            alpha_fname = str(alpha_).replace('.', '') + 'A_'
+            eta_fname = str(eta_).replace('.', '') + 'E_'
 
             # paths for saving
-            filename = str(n_top) + "T_" + str(i) + "I_" + 'seed'
+            filename = topic_fname + alpha_fname + eta_fname + 'seed'
             report_path = os.path.join(report_dir + filename + '.ndjson')
             model_path = os.path.join(model_dir + filename + '.joblib')
             pyldavis_path = os.path.join(plot_dir + filename + '_pyldavis.html')
@@ -230,7 +234,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
             model = guidedlda.GuidedLDA(
                 n_topics=n_top,
                 n_iter=iterations,
-                alpha=alpha, eta=eta,
+                alpha=alpha_, eta=eta_,
                 random_state=7, refresh=10
             )
 
