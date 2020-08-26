@@ -1,9 +1,12 @@
 """
 Class for estimation of information dynamics of time-dependent probabilistic document representations
+
+Forked from centre-for-humanities-computing/newsFluxus
+Author: Kristoffer L. Nielbo
 """
 import numpy as np
 
-from topicevolution.entropies import kld, jsd
+from src.topicevolution.entropies import kld, jsd
 
 class InfoDynamics:
     def __init__(self, data, time, window=3, weight=0, sort=False):

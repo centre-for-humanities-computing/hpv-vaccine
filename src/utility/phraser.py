@@ -52,16 +52,16 @@ def train(texts, lang='da', tokentype='lemma', out_path=None):
     # missing any data?
     assert len(mega_ttx.tokenlists) == len(phrase_list)
 
-    # put together dates and tweets
+    # put together IDs and documents
     phrase_doc = []
     for (i, tweet) in enumerate(phrase_list):
         d = dict()
+        d['id'] = i
         d['text'] = tweet
         phrase_doc.append(d)
 
     # remove empty tweets
     phrase_doc = [doc for doc in phrase_doc if doc['text']]
-    texts = [doc['text'] for doc in phrase_doc]
 
     # if saving enabled
     if out_path:
@@ -77,4 +77,4 @@ def train(texts, lang='da', tokentype='lemma', out_path=None):
         with open(out_path, 'w') as f:
             ndjson.dump(phrase_doc, f)
 
-    return texts
+    return phrase_doc

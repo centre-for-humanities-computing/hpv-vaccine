@@ -65,7 +65,7 @@ def load_data(ndjson_path):
 
     obj_dfs = [pd.DataFrame(dat) for dat in obj]
 
-    return obj
+    return obj_dfs
 
 
 def make_folders(out_dir):
@@ -84,11 +84,100 @@ def make_folders(out_dir):
     report_dir = os.path.join(out_dir, "report_lines", "")
     model_dir = os.path.join(out_dir, "models", "")
     plot_dir = os.path.join(out_dir, "plots", "")
+    doctop_dir = os.path.join(out_dir, "doctop_mats", "")
 
     # create sub-folders
-    for folder in [report_dir, model_dir, plot_dir]:
+    for folder in [report_dir, model_dir, plot_dir, doctop_dir]:
         # check if dir already exists
         if not os.path.exists(folder):
             os.mkdir(folder)
 
     return None
+
+
+def export_serialized(df, column='text', path=None):
+    '''
+    Serialize column to a dictionary,
+    where keys are ID and values are col.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        dataframe to unpack
+
+    column : str (default: 'text')
+        name of df's column to export
+
+    path : str, optional
+        where to save the resulting .ndjson object
+    '''
+    
+    # get ID column
+    df_id = (
+        df
+        .reset_index()
+        .rename(columns={'index': 'ID'})
+    )
+
+    # convert data to list of dicts
+    serial_output = []
+    for i, row in df_id.iterrows():
+        doc = {'ID': row['ID'], column: row[column]}
+        serial_output.append(doc)
+
+    # if path is specified, save & be silent
+    if path:
+        with open(path, 'w') as f:
+            ndjson.dump(serial_output, f)
+        return None
+
+    # if no path, return list of dicts
+    else:
+        return serial_output
+
+
+def compile_report(report_dir):
+    '''
+    Join partial reports from LDA training into one DF.
+    Returns a DF sorted in descending order by avg topic coherence in that model.
+
+    Parameters
+    ----------
+    report_dir : str
+        path to directory, where reports are saved.
+        Report are serialized tuples in .ndjson format.
+        See lda training scripts for details.
+    '''
+    # get a list of paths to import
+    report_paths = []
+    for file in os.listdir(report_dir):
+        if file.endswith(".ndjson"):
+            # tuple with whole path and file name
+            path_and_file = tuple([report_dir + file, file])
+            # append both
+            report_paths.append(path_and_file)
+
+    # iterate through paths, converting them into DF rows
+    dfs = pd.DataFrame([])
+    for path, model_name in report_paths:
+        # load the tuple
+        with open(path, 'rb') as f:
+            report = ndjson.load(f)
+
+        # convert to a df row
+        report_row = pd.DataFrame([report],
+                                  columns=['n_top', 'alpha', 'eta',
+                                           'training_time', 'coh_score',
+                                           'coh_topic'])
+        # add model name info
+        report_row.insert(0, 'model', model_name.replace('.ndjson', ''))
+        # compile report
+        dfs = dfs.append(report_row)
+
+    # sort models
+    dfs = (dfs
+           .sort_values(by='coh_score', ascending=False)
+           .reset_index()
+           .drop('index', 1))
+
+    return dfs
