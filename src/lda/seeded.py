@@ -21,7 +21,7 @@ from gensim.models.coherencemodel import CoherenceModel
 from src.utility.general import make_folders
 
 
-def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
+def init_guidedlda(texts, seed_topic_list):
     '''
     Prepare data & transform seeds to priors for guidedlda.
     (Vectorize texts and extract hashed seeds)
@@ -37,34 +37,17 @@ def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
     seed_topic_list : list (of lists)
         list of words, where in seed_topic_list[x][y] 
         x is a topic and y a word belonging in that topic.
-
-    vectorizer_type : str (optional)
-        Map documents using raw counts, or tfidf?
-        Options = {"count", "tfidf"}
     '''
     # texts are already preprocessed, so vectorizer gets this as tokenizer
     def do_nothing(doc):
         return doc
 
-    # choose vectorizer
-    if vectorizer_type is 'tfidf':
-        vectorizer = TfidfVectorizer(
-            analyzer='word',
-            tokenizer=do_nothing,
-            preprocessor=None,
-            lowercase=False
-        )
-
-    elif vectorizer_type is 'count':
-        vectorizer = CountVectorizer(
-            analyzer='word',
-            tokenizer=do_nothing,
-            preprocessor=None,
-            lowercase=False
-        )
-
-    else:
-        raise ValueError('vectorizer_type: choose "tfidf", or "count"')
+    vectorizer = CountVectorizer(
+        analyzer='word',
+        tokenizer=do_nothing,
+        preprocessor=None,
+        lowercase=False
+    )
 
     # prep texts to guidedlda format
     X = vectorizer.fit_transform(texts)
@@ -95,7 +78,7 @@ def gensim_format(texts):
     return bows, dictionary
 
 
-def coherence_guidedlda(topics, bows, dictionary):
+def coherence_guidedlda(topics, bows, dictionary, texts):
     '''
     Parameters
     ----------
@@ -110,6 +93,9 @@ def coherence_guidedlda(topics, bows, dictionary):
     dictionary : :class:`~gensim.corpora.dictionary.Dictionary`
         Gensim dictionary mapping of id word to create corpus.
 
+    texts : iterable
+        already preprocessed text data you want to build seeds on.
+
     Returns
     -------
     coh_score : float
@@ -123,7 +109,8 @@ def coherence_guidedlda(topics, bows, dictionary):
         topics=topics,
         corpus=bows,
         dictionary=dictionary,
-        coherence='u_mass'
+        texts=texts,
+        coherence='c_v'
     )
 
     coh_score = cm.get_coherence()
@@ -135,8 +122,8 @@ def coherence_guidedlda(topics, bows, dictionary):
 def grid_search_lda_SED(texts, seed_topic_list,
                         n_topics_range, priors_range,
                         out_dir,
-                        n_top_words=10,
-                        vectorizer_type='count',
+                        n_top_words=20,
+                        seed_confidence=0.15,
                         iterations=2000,
                         save_doc_top=True,
                         verbose=True):
@@ -168,12 +155,12 @@ def grid_search_lda_SED(texts, seed_topic_list,
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
 
-    n_top_words : int
+    n_top_words : int, optional (default: 20)
         when extracting top words associated with each topics, how many to pick?
 
-    vectorizer_type : str, optional (default: 'count')
-        Map documents using raw counts, or tfidf?
-        Options = {"count", "tfidf"}
+    seed_confidence : float, optional (default: '0.15')
+        When initializing the LDA, where are you on the spectrum
+        of sampling from seeds (1), vs. sampling randomly (0)?
 
     iterations : int, optional (default: 2000)
         maximum number of iterations to fit a topic model with.
@@ -217,7 +204,6 @@ def grid_search_lda_SED(texts, seed_topic_list,
     X, seed_priors, vectorizer = init_guidedlda(
         texts=texts,
         seed_topic_list=seed_topic_list,
-        vectorizer_type=vectorizer_type
     )
 
     # for coherence counting
@@ -249,7 +235,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
             )
 
             # TODO: iterate seed_confidence?
-            model.fit(X, seed_topics=seed_priors, seed_confidence=0.10)
+            model.fit(X, seed_topics=seed_priors, seed_confidence=seed_confidence)
 
             # track time usage
             training_time = time() - start_time
@@ -281,7 +267,8 @@ def grid_search_lda_SED(texts, seed_topic_list,
             coh_score, coh_topics = coherence_guidedlda(
                 topics=topics,
                 bows=bows,
-                dictionary=dictionary
+                dictionary=dictionary,
+                texts=texts
             )
 
             # save report
