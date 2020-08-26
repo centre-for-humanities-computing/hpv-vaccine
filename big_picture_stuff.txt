@@ -1,15 +1,7 @@
 Decisions)
-
-    seeded lda hyperparameter tuning
-        reasonable ranges?
     
     prepare seeds
-        hyperparameters for Word2Vec?
-        or am I using PmiSvd?
-
-    coherence values
-        look very different between ASM and SEED, despite both runing on gensim's CoherenceModel.
-        What the hell?
+        implement PmiSvd properly?
 
     duplicates
         in case of duplicate posts, should they be removed?
@@ -18,13 +10,16 @@ Decisions)
 
 New scripts)
 
-    push the JSON -> tabular part
+    push the JSON -> tabular transfromation in the first step
 
-    topic usage (detect topic in doc)
-        https://jeriwieringa.com/2017/06/21/Calculating-and-Visualizing-Topic-Significance-over-Time-Part-1/
-        1) normalize "topic weights" - topic probablities assigned to one document have a sum of 1
-        2) aggregate topic weights over a time window
-        3) 
+    Infomedia
+        a) merge files
+        b) preprocessing
+
+    downsampling
+        a) aggregate topic over a time window for topic usage
+        b) doctop matrix after normalization and before NTR for model evolution
+            b.1) possibly also after NTR
 
     final time series plot
         with ntr + topic usage
