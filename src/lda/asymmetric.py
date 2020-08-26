@@ -147,7 +147,8 @@ def grid_search_lda_ASM(texts,
         coherence_model = CoherenceModel(
             model=model,
             texts=texts,
-            corpus=bows
+            corpus=bows,
+            coherence='c_v'
         )
 
         coh_score = coherence_model.get_coherence()
