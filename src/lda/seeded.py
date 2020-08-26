@@ -1,8 +1,6 @@
 '''Iterate guidedlda's LDA in search of good hyperparameters.
 
 TODO
-- extract list of topics for coherence
-
 - iterate seed_confidence?
 '''
 import os
@@ -10,6 +8,7 @@ from itertools import chain
 from time import time
 
 import ndjson
+import numpy as np
 from joblib import dump
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
@@ -22,7 +21,7 @@ from gensim.models.coherencemodel import CoherenceModel
 from src.utility.general import make_folders
 
 
-def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
+def init_guidedlda(texts, seed_topic_list):
     '''
     Prepare data & transform seeds to priors for guidedlda.
     (Vectorize texts and extract hashed seeds)
@@ -38,35 +37,17 @@ def init_guidedlda(texts, seed_topic_list, vectorizer_type='count'):
     seed_topic_list : list (of lists)
         list of words, where in seed_topic_list[x][y] 
         x is a topic and y a word belonging in that topic.
-
-    vectorizer_type : str (optional)
-        Map documents using raw counts, or tfidf?
-        Options = {"count", "tfidf"}
     '''
     # texts are already preprocessed, so vectorizer gets this as tokenizer
     def do_nothing(doc):
         return doc
 
-    # choose vectorizer
-    if vectorizer_type is 'tfidf':
-        # TODO: this is dummy code
-        vectorizer = TfIdfVectorizer(
-            analyzer='word',
-            tokenizer=do_nothing,
-            preprocessor=None,
-            lowercase=False
-        )
-
-    elif vectorizer_type is 'count':
-        vectorizer = CountVectorizer(
-            analyzer='word',
-            tokenizer=do_nothing,
-            preprocessor=None,
-            lowercase=False
-        )
-
-    else:
-        raise ValueError('vectorizer_type: choose "tfidf", or "count"')
+    vectorizer = CountVectorizer(
+        analyzer='word',
+        tokenizer=do_nothing,
+        preprocessor=None,
+        lowercase=False
+    )
 
     # prep texts to guidedlda format
     X = vectorizer.fit_transform(texts)
@@ -97,7 +78,7 @@ def gensim_format(texts):
     return bows, dictionary
 
 
-def coherence_guidedlda(topics, bows, dictionary):
+def coherence_guidedlda(topics, bows, dictionary, texts):
     '''
     Parameters
     ----------
@@ -112,6 +93,9 @@ def coherence_guidedlda(topics, bows, dictionary):
     dictionary : :class:`~gensim.corpora.dictionary.Dictionary`
         Gensim dictionary mapping of id word to create corpus.
 
+    texts : iterable
+        already preprocessed text data you want to build seeds on.
+
     Returns
     -------
     coh_score : float
@@ -125,11 +109,12 @@ def coherence_guidedlda(topics, bows, dictionary):
         topics=topics,
         corpus=bows,
         dictionary=dictionary,
-        coherence='u_mass'
+        texts=texts,
+        coherence='c_v'
     )
 
     coh_score = cm.get_coherence()
-    coh_topics = coherence_model.get_coherence_per_topic()
+    coh_topics = cm.get_coherence_per_topic()
 
     return coh_score, coh_topics
 
@@ -137,8 +122,10 @@ def coherence_guidedlda(topics, bows, dictionary):
 def grid_search_lda_SED(texts, seed_topic_list,
                         n_topics_range, priors_range,
                         out_dir,
-                        vectorizer_type='count',
+                        n_top_words=20,
+                        seed_confidence=0.15,
                         iterations=2000,
+                        save_doc_top=True,
                         verbose=True):
     '''
     Fit many topic models to pick the most tuned hyperparameters.
@@ -168,12 +155,18 @@ def grid_search_lda_SED(texts, seed_topic_list,
     out_dir : str
         path to a directory, where results will be saved (in a child directory).
 
-    vectorizer_type : str, optional (default: 'count')
-        Map documents using raw counts, or tfidf?
-        Options = {"count", "tfidf"}
+    n_top_words : int, optional (default: 20)
+        when extracting top words associated with each topics, how many to pick?
+
+    seed_confidence : float, optional (default: '0.15')
+        When initializing the LDA, where are you on the spectrum
+        of sampling from seeds (1), vs. sampling randomly (0)?
 
     iterations : int, optional (default: 2000)
         maximum number of iterations to fit a topic model with.
+
+    save_doc_top : bool
+        save documet-topic matices from models?
 
     verbose : bool, optional (default: True)
         print progress comments.
@@ -199,6 +192,7 @@ def grid_search_lda_SED(texts, seed_topic_list,
     report_dir = os.path.join(out_dir, "report_lines", "")
     model_dir = os.path.join(out_dir, "models", "")
     plot_dir = os.path.join(out_dir, "plots", "")
+    doctop_dir = os.path.join(out_dir, 'doctop_mats', '')
 
     # if a single model is to be fitted,
     # make sure it can be "iterated"
@@ -210,7 +204,6 @@ def grid_search_lda_SED(texts, seed_topic_list,
     X, seed_priors, vectorizer = init_guidedlda(
         texts=texts,
         seed_topic_list=seed_topic_list,
-        vectorizer_type=vectorizer_type
     )
 
     # for coherence counting
@@ -221,27 +214,32 @@ def grid_search_lda_SED(texts, seed_topic_list,
     for n_top in chain(n_topics_range):
 
         # iterate over priors
-        for alpha, eta in priors_range:
+        for alpha_, eta_ in priors_range:
 
+            # track time
             start_time = time() # track time
-            i += 1 # track iterations
+            # track iterations
+            topic_fname = str(n_top) + "T_"
+            alpha_fname = str(alpha_).replace('.', '') + 'A_'
+            eta_fname = str(eta_).replace('.', '') + 'E_'
 
             # paths for saving
-            filename = str(n_top) + "T_" + str(i) + "I_"
+            filename = topic_fname + alpha_fname + eta_fname + 'seed'
             report_path = os.path.join(report_dir + filename + '.ndjson')
             model_path = os.path.join(model_dir + filename + '.joblib')
             pyldavis_path = os.path.join(plot_dir + filename + '_pyldavis.html')
+            doctop_path = os.path.join(doctop_dir + filename + '_mat.ndjson')
 
             # train model
             model = guidedlda.GuidedLDA(
                 n_topics=n_top,
                 n_iter=iterations,
-                alpha=alpha, eta=eta,
+                alpha=alpha_, eta=eta_,
                 random_state=7, refresh=10
             )
 
             # TODO: iterate seed_confidence?
-            model.fit(X, seed_topics=seed_priors, seed_confidence=0.10)
+            model.fit(X, seed_topics=seed_priors, seed_confidence=seed_confidence)
 
             # track time usage
             training_time = time() - start_time
@@ -252,15 +250,30 @@ def grid_search_lda_SED(texts, seed_topic_list,
             alpha = model.alpha
             eta = model.eta
 
-            # coherence
-            # TODO extract topics
-            coh_score = 'TODO'
-            coh_topics = 'TODO'
-#             coh_score, coh_topics = coherence_guidedlda(
-#                 topics=topics
-#                 bows=bows,
-#                 dictionary=dictionary
-#             )
+            # extract topic words
+            topics = []
+            for i, topic_dist in enumerate(model.topic_word_):
+                topic_words = (
+                    # take vocab (list of tokens in order)
+                    np.array(vectorizer.get_feature_names())
+                    # take term-topic distribution (topic_dist),
+                    # where topic_dist[0] is probability of vocab[0] in that topic
+                    # and sort vocab in descending order
+                    [np.argsort(topic_dist)]
+                    # selected & reorder so that only words only n_top_words+1 are kept
+                    [:-(n_top_words+1):-1]
+                )
+                # array to list
+                topic_words = [word for word in topic_words]
+                topics.append(topic_words)
+
+            # calculate topic coherence based on the extracted topics
+            coh_score, coh_topics = coherence_guidedlda(
+                topics=topics,
+                bows=bows,
+                dictionary=dictionary,
+                texts=texts
+            )
 
             # save report
             report = (n_top, alpha, eta, training_time, coh_score, coh_topics)
@@ -273,5 +286,16 @@ def grid_search_lda_SED(texts, seed_topic_list,
             # produce a visualization
             nice = pyLDAvis.sklearn.prepare(model, X, vectorizer)
             pyLDAvis.save_html(nice, pyldavis_path)
+
+            # save document-topic matrix
+            if save_doc_top:
+                doc_topic = (
+                    model
+                    .transform(X)
+                    .tolist()
+                )
+
+                with open(doctop_path, 'w') as f:
+                    ndjson.dump(doc_topic, f)
 
     return None

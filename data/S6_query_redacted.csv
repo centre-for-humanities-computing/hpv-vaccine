@@ -1,0 +1,283 @@
+,topic,term,related,similarity,count
+0,bevirkinger,kronisk,kronisk,1,159
+1,bevirkinger,kronisk,hyppig,0.35,104
+4,bevirkinger,kronisk,sygdom,0.32,2178
+5,bevirkinger,kronisk,stor risiko,0.31,145
+6,bevirkinger,kronisk,periode,0.31,198
+7,bevirkinger,kronisk,udvikle,0.31,453
+11,bevirkinger,hovedpine,hovedpine,1,161
+12,bevirkinger,hovedpine,smerte,0.58,630
+14,bevirkinger,hovedpine,symptom,0.41,1569
+20,bevirkinger,hovedpine,anfald,0.38,156
+22,bevirkinger,bivirkning,bivirkning,1,5698
+23,bevirkinger,bivirkning,alvorlig bivirkning,0.65,709
+25,bevirkinger,bivirkning,symptom,0.52,1569
+26,bevirkinger,bivirkning,indberette bivirkning,0.47,108
+28,bevirkinger,bivirkning,alvorlig,0.45,651
+29,bevirkinger,bivirkning,formode bivirkning,0.44,114
+30,bevirkinger,bivirkning,risiko,0.44,813
+32,bevirkinger,bivirkning,sammenhæng,0.43,554
+33,bevirkinger,skade,skade,1,1238
+34,bevirkinger,skade,vaccineskade,0.49,183
+35,bevirkinger,skade,erstatning,0.42,238
+36,bevirkinger,skade,invalidere,0.39,365
+37,bevirkinger,skade,syg,0.37,2845
+38,bevirkinger,skade,alvorlig,0.33,651
+39,bevirkinger,skade,forårsage,0.33,202
+44,kontrolforsøg,placebo,placebo,1,136
+45,kontrolforsøg,placebo,gruppe,0.4,768
+46,kontrolforsøg,placebo,aluminium,0.38,551
+47,kontrolforsøg,placebo,teste,0.37,433
+48,kontrolforsøg,placebo,studi,0.37,688
+49,kontrolforsøg,placebo,indeholde,0.35,321
+50,kontrolforsøg,placebo,overraske,0.32,125
+51,kontrolforsøg,placebo,anvende,0.3,216
+52,kontrolforsøg,placebo,bruge,0.3,2178
+53,kontrolforsøg,placebo,lave,0.3,1650
+54,kontrolforsøg,placebo,vaccine,0.29,14792
+55,alternativer til HPV vaccination,screening,screening,1,427
+58,alternativer til HPV vaccination,screening,opdage,0.45,248
+59,alternativer til HPV vaccination,screening,cellefordring,0.43,688
+60,alternativer til HPV vaccination,screening,keglesnit,0.41,150
+62,alternativer til HPV vaccination,screening,gynækolog,0.37,127
+63,alternativer til HPV vaccination,screening,tjekke,0.35,287
+64,alternativer til HPV vaccination,screening,ung kvinde,0.35,335
+65,alternativer til HPV vaccination,screening,svær cellefordring,0.35,132
+66,indholdsstoffer,aluminium,aluminium,1,551
+67,indholdsstoffer,aluminium,indeholde,0.47,321
+68,indholdsstoffer,aluminium,stof,0.42,256
+69,indholdsstoffer,aluminium,anvende,0.4,216
+70,indholdsstoffer,aluminium,mængde,0.39,110
+77,kræft,livmoderhalskræft,livmoderhalskræft,1,1902
+78,kræft,livmoderhalskræft,kræft,0.59,1824
+80,kræft,livmoderhalskræft,screening,0.57,427
+81,kræft,livmoderhalskræft,cellefordring,0.49,688
+82,kræft,livmoderhalskræft,tilfælde livmoderhalskræft,0.49,217
+84,kræft,livmoderhalskræft,beskytte livmoderhalskræft,0.46,124
+85,kræft,livmoderhalskræft,ung kvinde,0.46,335
+86,kræft,livmoderhalskræft,keglesnit,0.44,150
+87,kræft,livmoderhalskræft,kraftform,0.44,158
+89,køn,pige,pige,1,5187
+97,køn,pige,datter,0.47,2216
+107,køn,pige,ramme,0.42,1565
+109,køn,pige,ung kvinde,0.41,335
+113,køn,pige,ung pige,0.5,477
+119,køn,pige,datter,0.47,2216
+583,køn,kvinde,kvinde,1,2303
+132,indsatser,gratis,gratis,1,491
+138,indsatser,gratis,årgang,0.39,111
+140,indsatser,gratis,tilbud,0.35,363
+144,indsatser,gratis,tilbyde,0.33,622
+146,indsatser,gratis,vaccinationsprogram,0.33,211
+176,indsatser,børnevaccinationsprogram,børnevaccinationsprogram,1,247
+177,indsatser,børnevaccinationsprogram,vaccinationsprogram,0.45,211
+178,indsatser,børnevaccinationsprogram,vaccine godkende,0.44,207
+181,indsatser,børnevaccinationsprogram,sikker effektiv,0.38,106
+183,indsatser,børnevaccinationsprogram,vaccine,0.38,14792
+184,indsatser,børnevaccinationsprogram,beskytte,0.37,1328
+198,indsatser,råd,råd,1,472
+211,indsatser,betale,tilskud,0.49,120
+220,indsatser,center,center,1,337
+221,indsatser,center,region,0.43,357
+222,indsatser,center,hjælpe,0.41,2049
+223,indsatser,center,hjælp,0.39,988
+224,indsatser,center,diagnose,0.38,278
+226,indsatser,center,behandling,0.37,1812
+227,indsatser,center,pige,0.36,5187
+228,indsatser,center,fejle,0.35,226
+231,indsatser,læge,læge,1,5114
+232,indsatser,læge,hospital,0.46,273
+233,indsatser,læge,egen læge,0.43,275
+234,indsatser,læge,patient,0.42,1371
+237,indsatser,læge,praktisere læge,0.39,232
+238,indsatser,læge,sygehus,0.38,289
+242,seksualitet,kondom,kondom,1,106
+243,seksualitet,kondom,sex,0.47,180
+246,seksualitet,kondom,beskyttelse,0.32,177
+248,seksualitet,kondom,opmærksom,0.3,123
+249,seksualitet,kondom,informere,0.29,232
+251,seksualitet,kondom,udbrede,0.28,133
+256,seksualitet,sex,smitte,0.38,870
+264,usikkerhed,tvivl,tvivl,1,834
+265,usikkerhed,tvivl,beslutning,0.43,302
+266,usikkerhed,tvivl,forælder,0.37,1417
+270,usikkerhed,tvivl,tvivle,0.34,103
+275,usikkerhed,spørgsmål,spørgsmål,1,1082
+276,usikkerhed,spørgsmål,svar,0.45,1060
+277,usikkerhed,spørgsmål,svare,0.4,542
+278,usikkerhed,spørgsmål,spørge,0.4,743
+279,usikkerhed,spørgsmål,dialog,0.34,130
+281,usikkerhed,spørgsmål,henvendelse,0.31,112
+282,usikkerhed,spørgsmål,stille spørgsmål,0.31,127
+286,usikkerhed,valg,valg,1,681
+287,usikkerhed,valg,vælge,0.61,1704
+288,usikkerhed,valg,konsekvens,0.47,373
+292,usikkerhed,valg,risiko,0.41,813
+293,usikkerhed,valg,risikere,0.41,216
+294,usikkerhed,valg,fravælge,0.41,268
+296,usikkerhed,valg,forslag,0.35,159
+299,usikkerhed,risiko,risikere,0.47,216
+300,usikkerhed,risiko,bivirkning,0.44,5698
+301,usikkerhed,risiko,fordel,0.43,239
+302,usikkerhed,risiko,øge risiko,0.43,149
+305,usikkerhed,risiko,fravælge,0.39,268
+306,usikkerhed,risiko,sjælden,0.39,184
+307,usikkerhed,risiko,stor risiko,0.37,145
+319,usikkerhed,mulighed,mulighed,1,906
+321,usikkerhed,mulighed,sikre,0.39,337
+326,usikkerhed,mulighed,fremtid,0.32,284
+330,standpunkt,tænke,tænke,1,1848
+332,standpunkt,tænke,tro,0.39,2770
+333,standpunkt,tænke,folk,0.38,2207
+334,standpunkt,tænke,forfærdelig,0.35,366
+335,standpunkt,tænke,føj,0.35,160
+336,standpunkt,tænke,menneske,0.34,1602
+337,standpunkt,tænke,gøre,0.34,5910
+339,standpunkt,tænke,leve,0.33,843
+341,standpunkt,mærke,mærke,1,323
+345,standpunkt,mærke,reagere,0.32,165
+352,standpunkt,holdning,holdning,1,598
+353,standpunkt,holdning,mening,0.51,535
+354,standpunkt,holdning,synspunkt,0.39,110
+355,standpunkt,holdning,mene,0.38,2202
+356,standpunkt,holdning,diskutere,0.37,195
+357,standpunkt,holdning,debat,0.36,817
+361,standpunkt,holdning,uenig,0.35,138
+362,standpunkt,holdning,ret,0.34,808
+363,videnskab,forskning,forskning,1,747
+365,videnskab,forskning,medicinsk,0.46,203
+367,videnskab,forskning,forsker,0.44,629
+369,videnskab,forskning,studi,0.41,688
+371,videnskab,forskning,videnskabelig,0.38,291
+375,videnskab,forskning,baggrund,0.35,278
+377,videnskab,forskning,international,0.35,105
+379,videnskab,forskning,resultat,0.35,475
+381,videnskab,forskning,industri,0.33,289
+383,videnskab,forskning,ekspert,0.33,356
+385,videnskab,forskning,forskning,1,747
+387,videnskab,forskning,medicinsk,0.46,203
+407,videnskab,evidens,evidens,1,442
+408,videnskab,evidens,virke,0.42,1380
+409,videnskab,evidens,dokumentation,0.39,459
+410,videnskab,evidens,virkning,0.38,287
+411,videnskab,evidens,konklusion,0.36,223
+412,videnskab,evidens,videnskab,0.36,405
+413,videnskab,evidens,funktionel lidelse,0.36,500
+414,videnskab,evidens,kilde,0.36,304
+415,videnskab,evidens,påstand,0.35,385
+416,videnskab,evidens,bevis,0.33,521
+418,videnskab,information,information,1,645
+419,videnskab,information,oplysning,0.56,434
+420,videnskab,information,informere,0.45,232
+421,videnskab,information,oplyse,0.44,651
+425,videnskab,information,viden,0.34,641
+426,videnskab,information,kritisere,0.33,127
+427,videnskab,information,indlæg,0.32,373
+429,videnskab,viden,viden,1,641
+430,videnskab,viden,videnskabelig,0.41,291
+431,videnskab,viden,tilgang,0.39,108
+432,videnskab,viden,ekspert,0.37,356
+433,videnskab,viden,holdning,0.36,598
+434,videnskab,viden,information,0.34,645
+435,videnskab,viden,forskning,0.32,747
+436,videnskab,viden,info,0.32,178
+437,videnskab,viden,erfaring,0.32,304
+438,videnskab,viden,emne,0.3,385
+439,videnskab,viden,kilde,0.29,304
+440,videnskab,videnskab,videnskab,1,405
+441,videnskab,videnskab,basere,0.49,210
+442,videnskab,videnskab,fakta,0.43,371
+443,videnskab,videnskab,påstand,0.42,385
+444,videnskab,videnskab,konklusion,0.42,223
+445,videnskab,videnskab,lægevidenskab,0.42,104
+446,videnskab,videnskab,videnskabelig,0.41,291
+447,videnskab,videnskab,metode,0.41,141
+449,videnskab,videnskab,argument,0.39,452
+450,videnskab,videnskab,modsat,0.38,107
+451,videnskab,fakta,fakta,1,371
+452,videnskab,fakta,videnskab,0.43,405
+453,videnskab,fakta,misinformation,0.4,118
+454,videnskab,fakta,påstand,0.38,385
+455,videnskab,fakta,videnskabelig,0.37,291
+458,videnskab,fakta,forholde,0.36,356
+459,videnskab,fakta,konklusion,0.36,223
+461,videnskab,fakta,argument,0.36,452
+462,videnskab,undersøgelse,undersøgelse,1,1016
+464,videnskab,undersøgelse,undersøge,0.38,962
+466,videnskab,undersøgelse,studi,0.36,688
+468,videnskab,undersøgelse,blodprøve,0.36,124
+470,videnskab,undersøgelse,kontrol,0.34,163
+472,videnskab,undersøgelse,afdeling,0.33,142
+474,videnskab,undersøgelse,uvildig,0.33,133
+476,videnskab,undersøgelse,konklusion,0.33,223
+478,videnskab,undersøgelse,studie,0.32,284
+480,videnskab,undersøgelse,henvise,0.3,478
+482,videnskab,undersøgelse,data,0.3,257
+484,videnskab,undersøgelse,undersøgelse,1,1016
+486,videnskab,undersøgelse,undersøge,0.38,962
+488,videnskab,undersøgelse,studi,0.36,688
+490,videnskab,undersøgelse,blodprøve,0.36,124
+492,videnskab,undersøgelse,kontrol,0.34,163
+494,videnskab,undersøgelse,afdeling,0.33,142
+496,videnskab,undersøgelse,uvildig,0.33,133
+498,videnskab,undersøgelse,konklusion,0.33,223
+500,videnskab,undersøgelse,studie,0.32,284
+502,videnskab,undersøgelse,henvise,0.3,478
+504,videnskab,undersøgelse,data,0.3,257
+506,videnskab,tal,tal,1,701
+507,videnskab,tal,antal,0.52,455
+508,videnskab,tal,procent,0.39,255
+509,videnskab,tal,sammenligne,0.37,216
+513,videnskab,tal,konklusion,0.33,223
+514,videnskab,tal,forekomst,0.33,123
+515,videnskab,tal,tilfælde,0.33,1032
+516,videnskab,tal,antage,0.33,100
+517,videnskab,studie,studie,1,284
+518,videnskab,studie,studi,0.73,688
+519,videnskab,studie,data,0.5,257
+520,videnskab,studie,forekomst,0.44,123
+521,videnskab,studie,rapport,0.44,212
+522,videnskab,studie,konklusion,0.42,223
+524,videnskab,studie,konkludere,0.39,189
+525,videnskab,studie,artikel,0.38,1226
+526,videnskab,studie,argument,0.35,452
+527,videnskab,studie,gruppe,0.33,768
+528,videnskab,sikker,sikker,1,921
+530,videnskab,sikker,sikkerhed,0.37,343
+531,videnskab,sikker,sikker effektiv,0.36,106
+533,videnskab,sikker,findes,0.33,900
+537,videnskab,sikker,virkelighed,0.32,252
+538,videnskab,sikker,dokumentere,0.31,327
+539,videnskab,findes,findes,1,900
+540,videnskab,findes,finde,0.45,2213
+541,videnskab,findes,henvise,0.36,478
+542,videnskab,findes,videnskabelig dokumentation,0.35,100
+547,videnskab,findes,årsag,0.32,754
+548,videnskab,findes,forhindre,0.32,213
+549,videnskab,findes,evidens,0.31,442
+550,videnskab,vide,vide,1,3778
+555,videnskab,vide,læge,0.37,5114
+556,videnskab,vide,indrømme,0.34,141
+557,videnskab,vide,tilfælde,0.33,1032
+558,videnskab,vide,sikker,0.33,921
+561,håb,håb,håb,1,210
+562,håb,håb,håbe,0.38,1901
+563,håb,håb,ønske,0.32,1491
+564,håb,håb,behandling,0.32,1812
+565,håb,håb,fortjene,0.31,291
+566,håb,håb,kamp,0.31,311
+567,håb,håb,mulighed,0.3,906
+568,håb,håb,fantastisk,0.3,518
+569,håb,håb,liv,0.29,1669
+570,håb,håb,glad,0.28,648
+571,håb,håb,energi,0.27,122
+572,håb,ønske,ønske,1,1491
+573,håb,ønske,fremtid,0.44,284
+574,håb,ønske,håbe,0.39,1901
+575,håb,ønske,mulighed,0.39,906
+576,håb,ønske,hjælp,0.35,988
+577,håb,ønske,indsats,0.33,160
+578,håb,ønske,håb,0.32,210
+580,håb,ønske,❤️,0.3,480
+581,håb,ønske,kæmpe,0.29,713
+582,håb,ønske,dejlig,0.28,778

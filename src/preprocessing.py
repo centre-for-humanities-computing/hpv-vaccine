@@ -82,6 +82,22 @@ def stanza_multicore(texts, lang, n_jobs_gpu):
     return dfs_out
 
 
+def _delete_many_equal_signs(dfs_out):
+    '''
+    Hotfix for weird strings crashing Stanza.
+
+    - '========================'
+    '''
+    dfs_eq = [
+        {'ID': doc['ID'],
+         'text': doc['text'].translate(str.maketrans('', '', '\n\n========================'))
+        }
+        for doc in dfs_out
+    ]
+    
+    return dfs_eq
+
+
 def main():
     '''
     Run preprocessing
@@ -111,6 +127,13 @@ def main():
                     required=False,
                     type=int, default=4,
                     help="number of workers to split the job between.")
+
+    # hotfix
+    ap.add_argument("--bugstring",
+                required=False,
+                type=bool, default=False,
+                help="remove seqences of equal signs from documents?")
+
     # parse that
     args = vars(ap.parse_args())
 
@@ -118,6 +141,10 @@ def main():
     print('[info] Importing {}'.format(args['inpath']))
     with open(args['inpath'], 'r') as f_in:
         texts = ndjson.load(f_in)
+
+    print('[info] Clearing buggy strings.')
+    if args['bugstrings']:
+        texts = _delete_many_equal_signs(texts)
 
     print('[info] Stanza starting {} jobs'.format(args['jobs']))
     dfs_out = stanza_multicore(
@@ -132,4 +159,5 @@ def main():
 
 
 if __name__=="__main__":
+    mp.set_start_method("spawn", force=True)
     main()

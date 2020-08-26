@@ -1,29 +1,33 @@
 Decisions)
-
-    seeded lda hyperparameter tuning
-        reasonable ranges?
     
     prepare seeds
-        hyperparameters for Word2Vec?
-        or am I using PmiSvd?
+        implement PmiSvd properly?
 
-    gensim format
-        own utility script
-
-    doc-top-matrix
-        extraction: move to lda/!
-        summarize: rolling average?
+    duplicates
+        in case of duplicate posts, should they be removed?
+        Probably no.
 
 
 New scripts)
 
-    from JSON -> tabular
+    push the JSON -> tabular transfromation in the first step
 
-    topic usage (detect topic in doc)
+    Infomedia
+        a) merge files
+        b) preprocessing
 
-    keep track of post ID
-        assign ID to each document in preprocessing
-        keep doc ID at hand in the other steps
+    downsampling
+        a) aggregate topic over a time window for topic usage
+        b) doctop matrix after normalization and before NTR for model evolution
+            b.1) possibly also after NTR
+
+    final time series plot
+        with ntr + topic usage
+
+    batch/path variable
+        won't work on windows.
+        Wrap in os.path.join nicely.
+
 
 
 Git repo)
