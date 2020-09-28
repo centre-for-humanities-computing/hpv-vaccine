@@ -9,9 +9,12 @@ calculate_ntr : IndexError
 drivers : argparse
 '''
 import os
+from itertools import chain
 
 import numpy as np
 from scipy import stats
+
+import ndjson
 
 
 def kld(p, q):
@@ -147,12 +150,12 @@ def calculate(doc_top_prob, ID, window: int, out_dir=None, curb_incomplete=False
 
     if curb_incomplete:
         # keep only rows with full records
-        d = d[window:-window]
+        lignes = lignes[window:-window]
 
     if out_dir:
         # make a filename
         filename = str(window) + 'W' + '.ndjson'
-        outpath = out_dir + filename
+        outpath = os.path.join(out_dir, filename)
 
         # export
         with open(outpath, "w") as f:
