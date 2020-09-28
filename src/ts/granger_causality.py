@@ -115,11 +115,11 @@ def main(df_predictors, df_outcome):
     all timeseries A (df_predictors) -> all timeseries B (df_outcomes)
     '''
     # Test for stationary timeseries
-    print('[ADF test] {}'.format(df_predictors))
+    print('[ADF test] df_predictors')
     for col_name, col_dat in df_predictors.iteritems():
         print(col_name, ":", adf(col_dat, raise_error=False))
 
-    print('[ADF test] Testing timeseries in {}'.format(df_outcome))
+    print('[ADF test] df_outcome')
     for col_name, col_dat in df_outcome.iteritems():
         print(col_name, ":", adf(col_dat, raise_error=False))
 
