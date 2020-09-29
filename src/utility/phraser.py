@@ -3,9 +3,6 @@ Detect phrases in text.
 
 a) POS filtering
 b) phrase detection
-
-TODO:
-- retrun a list of dataframes with POS and all that.
 '''
 
 import pandas as pd
@@ -15,7 +12,9 @@ from gensim import models, corpora
 import text_to_x as ttx
 
 
-def train(texts, lang='da', tokentype='lemma', out_path=None):
+def train(texts, tokentype='lemma',
+          allowed_pos=["NOUN", "ADJ", "VERB", "PROPN"],
+          out_path=None):
     '''Run gensim phrase detection, remove empty, keep dates.
     Returns lists of tokens.
     
@@ -26,11 +25,12 @@ def train(texts, lang='da', tokentype='lemma', out_path=None):
         using text_to_x 
         (i.e. tokenization, lemmatization & feature selection)
 
-    lang : str
-        Two-character ISO code of a desired language.
-
     tokentype : str
-        Either "token" or "lemma".
+        Either "token" or "lemma"
+
+    allowed_pos : list
+        uPOS that will be kept in texts.
+        Use stanza tags.
 
     out_path : str (optional)
         path to a directory, where results will be saved
@@ -39,18 +39,20 @@ def train(texts, lang='da', tokentype='lemma', out_path=None):
     # convert to a nice format
     # keep only "meaningful" POS
     # (i.e. noun, propnoun, adj, verb, adverb)
-    ttt_wrap = ttx.TextToTokensWrapper(texts, lang=lang)
-    mega_ttx = ttx.TextToTopic(ttt_wrap, tokentype=tokentype)
+    texts_filter = []
+    for doc in texts:
+        allowed_keys = [key for key, value in doc['upos'].items() if value in allowed_pos]
+        texts_filter.append([word for key, word in doc[tokentype].items() if key in allowed_keys])
 
     # initialize phrase detection
-    phrases = models.Phrases(mega_ttx.tokenlists, delimiter=b" ")
+    phrases = models.Phrases(texts_filter, delimiter=b" ")
     # find phrases
     phraser = models.phrases.Phraser(phrases)
     # extract texts with phrases detected
-    phrase_list = [phraser[tl] for tl in mega_ttx.tokenlists]
+    phrase_list = [phraser[tl] for tl in texts_filter]
 
     # missing any data?
-    assert len(mega_ttx.tokenlists) == len(phrase_list)
+    assert len(texts_filter) == len(phrase_list)
 
     # put together IDs and documents
     phrase_doc = []

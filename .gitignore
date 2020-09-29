@@ -1,6 +1,7 @@
 # big folders
 data/
 models/
+legacy/
 
 # temporary stuff
 TMP*
