@@ -1,5 +1,3 @@
-## Week 40 summary ##
-
 ### Internal information flow ###
 
 Of two systems: Social media (FB) and legacy media (IM).
@@ -14,7 +12,15 @@ Information flow modeled on daily average topic composition day, over __1829 day
 Starting 2012-01-09, ending 2018-03-21
 
 <p>
-    <img src="models/200826_seed_prior_test/timeseries/adaptline_NR.png" alt="FB: Novelty-Resonance timeseries">
+    <img src="models/200826_seed_prior_test/timeseries/adaptline_NR_norm.png" alt="FB: Novelty-Resonance timeseries">
+    <em>
+        Unfocused debate between 2014 and 2015 - new content introduced constantly.  
+        This stops sharply in early 2015.
+    </em>
+</p>
+
+<p>
+    <img src="models/200826_seed_prior_test/timeseries/adaptline_NR_raw.png" alt="FB: Novelty-Resonance timeseries">
     <em>
         Unfocused debate between 2014 and 2015 - new content introduced constantly.  
         This stops sharply in early 2015.
@@ -41,7 +47,15 @@ Information flow modeled on daily average topic composition day, over __2133 day
 Starting 2009-01-06, ending 2018-05-06.
 
 <p>
-    <img src="models/200915_IMda_asm/timeseries/adaptline_NR.png" alt="IM: Novelty-Resonance timeseries">
+    <img src="models/200915_IMda_asm/timeseries/adaptline_NR_norm.png" alt="IM: Novelty-Resonance timeseries">
+    <em>
+        The media landsape is very volatile before 2014; Novelty spiking at seemingly random times without an overall trend.
+        From mid-2014 however, there is a clear increase of novel content in the system.
+    </em>
+</p>
+
+<p>
+    <img src="models/200915_IMda_asm/timeseries/adaptline_NR_raw.png" alt="IM: Novelty-Resonance timeseries">
     <em>
         The media landsape is very volatile before 2014; Novelty spiking at seemingly random times without an overall trend.
         From mid-2014 however, there is a clear increase of novel content in the system.
