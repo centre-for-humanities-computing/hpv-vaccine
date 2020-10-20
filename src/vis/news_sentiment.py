@@ -1,6 +1,12 @@
 #!/home/knielbo/virtenvs/teki/bin/python
 """
-Driver for application of uncertainty model to trend detection and classification of newspaper content 
+Driver for application of uncertainty model to trend detection and classification of newspaper content
+
+TODO
+----
+clutter 
+    we only really need normalize and adaptive_filter
+    the rest of the functions are not needed.
 """
 import os
 import argparse
@@ -12,7 +18,7 @@ import src.vis.saffine.detrending_method as dm
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 mpl.rcParams.update({"text.usetex": False,
-                    "font.family": "Times New Roman",
+                    "font.family": "serif",
                     "font.serif": "cmr10",
                     "mathtext.fontset": "cm",
                     "axes.unicode_minus": False
@@ -92,6 +98,45 @@ def adaptiveline(x1, x2, dates,
         ax[1].plot(dates, r_smooth,c=c[i])
     ax[1].set_ylabel(x2_lab, fontsize=14)
     plt.tight_layout()
+    plt.savefig(fname)
+    plt.close()
+
+
+def adaptiveline_infodynamics(x1, x2, dates,
+                              dataset_name, plot_label,
+                              c=['mistyrose', 'indianred', 'darkred'],
+                              normalize_signal=True, filter_span=[32, 56, 128],
+                              my_dpi=300, fname='adaptline.png'):
+    '''
+    Barchart with adaptline for Novelty and Resonance.
+    '''
+    _, ax = plt.subplots(2,1,figsize=(3000/my_dpi,1800/my_dpi),dpi=my_dpi)
+
+    if normalize_signal:
+        x1 = normalize(x1, lower=0)
+        x2 = normalize(x2, lower=0)
+        norm_label = '(normalized)'
+    else:
+        norm_label = '(raw scores)'
+        
+
+    ax[0].bar(dates, x1, color='grey')
+    for i, span in enumerate(filter_span):
+        n_smooth = adaptive_filter(x1, span=span)
+        ax[0].plot(dates, n_smooth,c=c[i])
+    ax[0].set_ylabel("$\\mathbb{N}ovelty$", fontsize=14)
+
+    ax[1].bar(dates, x2, color='grey')
+    for i, span in enumerate(filter_span):
+        r_smooth = adaptive_filter(x2, span=span)
+        ax[1].plot(dates, r_smooth,c=c[i])
+    ax[1].set_ylabel("$\\mathbb{R}esonance$", fontsize=14)
+    
+    suptitle_label = ' '.join([plot_label, norm_label])
+    plt.suptitle(dataset_name + '\n' + suptitle_label, fontsize="14", fontname="serif")
+    
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.90)
     plt.savefig(fname)
     plt.close()
 
